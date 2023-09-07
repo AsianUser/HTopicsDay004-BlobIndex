@@ -34,9 +34,14 @@ public class Blob {
         hashFileString = hash(new File(filePath));
 
         // create file
-        File blob = new File(objectsFolderPath + "\\" + hashFileString + ".txt");
+        String blobFile = objectsFolderPath + "\\objects\\" + hashFileString + ".txt";
+        System.out.println(blobFile);
+        File blob = new File(blobFile);
+        // if exists, wont create
+        blob.createNewFile();
 
         // write text to file
+        copyData(new File(filePath), blob);
 
     }
 
