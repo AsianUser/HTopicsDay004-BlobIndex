@@ -10,6 +10,9 @@ import java.io.*;
 import java.nio.file.*;
 
 public class Blob {
+
+    String hashFileString;
+
     public Blob(String filePath) throws Exception {
 
         // takes path & locates parent's path
@@ -28,7 +31,12 @@ public class Blob {
         theDir.mkdirs();
 
         // hash
-        String hash = hash(new File(filePath));
+        hashFileString = hash(new File(filePath));
+
+        // create file
+        File blob = new File(objectsFolderPath + "\\" + hashFileString + ".txt");
+
+        // write text to file
 
     }
 
@@ -61,6 +69,24 @@ public class Blob {
         } catch (NoSuchAlgorithmException ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    public void copyData(File fromFile, File toFile) throws Exception {
+        String fileData = "";
+
+        BufferedReader buffReader = new BufferedReader(new FileReader(fromFile));
+        while (buffReader.ready()) {
+            int chara = buffReader.read();
+            fileData += (char) chara;
+        }
+
+        buffReader.close();
+
+        PrintWriter pw = new PrintWriter(toFile);
+        // prepare
+        pw.write(fileData);
+
+        pw.close();
     }
 
     public static void main(String[] args) throws Exception {
