@@ -11,13 +11,14 @@ import java.nio.file.*;
 public class Blob {
 
     String hashFileString;
+    String fileContent;
 
     public Blob(String filePath) throws Exception {
 
         // takes path & locates parent's path
         // removes chars until locates "\\"
         int i = filePath.length() - 1;
-        while (filePath.charAt(i) != '\\' || i >= 0) {
+        while (filePath.charAt(i) != '\\' && i > 0) {
             // System.out.println(path.charAt(i));
             i--;
         }
@@ -34,7 +35,7 @@ public class Blob {
 
         // create file
         String blobFile = objectsFolderPath + "\\objects\\" + hashFileString + ".txt";
-        System.out.println(blobFile);
+        // System.out.println(blobFile);
         File blob = new File(blobFile);
         // if exists, wont create
         blob.createNewFile();
@@ -48,10 +49,14 @@ public class Blob {
         return hashFileString;
     }
 
+    public String getFileContent() {
+        return fileContent;
+    }
+
     // To-do: ask is this ho wthis is supposed to work
     public String hash(File file) throws Exception {
 
-        // hashes an entire file, not just insides
+        // hashes text in file; ignore the off chance of duplicates
         try {
             MessageDigest md = MessageDigest.getInstance("SHA1");
             FileInputStream fis = new FileInputStream(file);
