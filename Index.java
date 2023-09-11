@@ -5,21 +5,29 @@ import java.nio.file.*;
 
 public class Index {
 
-    // To-do: must ask about how to find target location
-    String indexPath = ".\\test";
+    // define path to folder I want to index - this is ok
+    String testFolderPath = ".\\test";
+
+    File indexFile;
+    String indexPath = "";
+    String objectsFolderPath = "";
 
     public Index() {
 
     }
 
     public void init() throws Exception {
-        // create index file
-        File indexFile = new File(indexPath, "index");
+        indexFile = new File(testFolderPath, "index");
+        indexFile.delete();
+        indexFile.createNewFile();
+
+        indexPath = indexFile.getPath();
         indexFile.createNewFile();
 
         // create objects folder
-        File objectsFolder = new File(indexPath, "objects");
+        File objectsFolder = new File(testFolderPath, "objects");
         objectsFolder.mkdirs();
+        objectsFolderPath = objectsFolder.getPath();
     }
 
     public void add(File file) {
