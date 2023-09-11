@@ -104,8 +104,4 @@ public class Blob {
         pw.close();
     }
 
-    public static void main(String[] args) throws Exception {
-        Blob test = new Blob(
-                ".\\test\\test.txt");
-    }
 }
