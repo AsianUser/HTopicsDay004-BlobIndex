@@ -9,14 +9,15 @@ public class Index {
     String testFolderPath = ".\\test";
 
     File indexFile;
-    String indexPath = "";
+    String indexPath = ""; // path to index.txt
     String objectsFolderPath = "";
 
     public Index() {
-
+        // ._.
     }
 
     public void init() throws Exception {
+        // makes index file - if exists, delete then remake
         indexFile = new File(testFolderPath, "index");
         indexFile.delete();
         indexFile.createNewFile();
@@ -31,6 +32,7 @@ public class Index {
     }
 
     public void add(String fileName) throws Exception {
+        // make new blob & file in obj folder
         Blob addBlob = new Blob(testFolderPath + "\\" + fileName);
 
         String hash = addBlob.getHashString();
@@ -48,13 +50,14 @@ public class Index {
 
         // look for fileName, takes hash, and delete line
 
-        System.out.println(indexFile.canRead());
+        // System.out.println(indexFile.canRead());
         BufferedReader bf = new BufferedReader(new FileReader(indexFile));
 
-        // boolean found = false;
+        // this will be put into new index file
         String text = "";
+
         while (bf.ready()) {
-            System.out.println("ready");
+            // System.out.println("ready");
             String line = bf.readLine();
             // System.out.println(line.length());
 
@@ -65,18 +68,20 @@ public class Index {
                 index++;
             }
 
+            // builds string to put in new indexfile
             if (!fileName.equals(line.substring(0, index - 1))) {
                 // System.out.println(line.substring(0, index - 1));
                 text += line + "\n";
             }
         }
 
-        // delete indexfile & rewrite in new
+        // delete indexfile & rewrite in new indexfile
+        // might be better way to do, but "me no want think"
         indexFile.delete();
         indexFile.createNewFile();
 
         FileWriter fw = new FileWriter(indexFile);
-        System.out.println("write");
+        // System.out.println("write");
         fw.write(text);
 
         bf.close();

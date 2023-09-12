@@ -53,7 +53,6 @@ public class Blob {
         return fileContent;
     }
 
-    // To-do: ask is this ho wthis is supposed to work
     public String hash(File file) throws Exception {
 
         // hashes text in file; ignore the off chance of duplicates
@@ -86,9 +85,11 @@ public class Blob {
         }
     }
 
+    // copies data/text from one method to the next
     public void copyData(File fromFile, File toFile) throws Exception {
         String fileData = "";
 
+        // creates string
         BufferedReader buffReader = new BufferedReader(new FileReader(fromFile));
         while (buffReader.ready()) {
             int chara = buffReader.read();
@@ -97,8 +98,8 @@ public class Blob {
 
         buffReader.close();
 
+        // actually writes
         PrintWriter pw = new PrintWriter(toFile);
-        // prepare
         pw.write(fileData);
 
         pw.close();
