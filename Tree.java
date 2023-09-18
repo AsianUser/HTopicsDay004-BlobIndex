@@ -1,4 +1,3 @@
-package test;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -12,17 +11,40 @@ import java.util.List;
 
 public class Tree {
     private List<String> entries;
+    String fileName;
+    String combinedContents = "";
 
-    public Tree() {
-        entries = new ArrayList<>();
+    public Tree() throws NoSuchAlgorithmException {
+        for (String entry : entries) {
+            combinedContents += entry + "\n";
+        }
+        fileName = generateSHA(combinedContents);
+        File file = new File("objects/" + fileName);
     }
 
-    public void add(String entry) {
+    public void add(String entry) throws NoSuchAlgorithmException, IOException {
         entries.add(entry);
+        combinedContents += entry;
+        fileName = generateSHA(combinedContents);
+        writeToFile(fileName);
     }
 
-    public void remove(String name) {
-        entries.removeIf(entry -> entry.contains(name));
+    public void remove(String name) throws NoSuchAlgorithmException, IOException {
+        entries.removeIf(entry -> {
+            String[] parts = entry.split(" : ");
+            if (parts.length >= 3) {
+                String typeOfFile = parts[0];
+                String shaOfFile = parts[1];
+                String optionalFileName = parts[2];
+                return shaOfFile.equals(name) || optionalFileName.equals(name);
+            }
+            return false;
+        });
+        for (String entry : entries) {
+            combinedContents += entry + "\n";
+        }
+        fileName = generateSHA(combinedContents);
+        writeToFile(fileName);
     }
 
     public void writeToFile(String fileName) throws IOException, NoSuchAlgorithmException {
@@ -30,15 +52,9 @@ public class Tree {
         for (String entry : entries) {
             combinedContents += entry + "\n";
         }
-        fileName = generateSHA(combinedContents);
         File file = new File("objects/" + fileName);
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-            for (int i = 0; i < entries.size(); i++) {
-                writer.write(entries.get(i));
-                if (i < entries.size() - 1) {
-                    writer.newLine();
-                }
-            }
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, false))) {
+            writer.write(combinedContents);
         }
     }
 
@@ -71,5 +87,9 @@ public class Tree {
         catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void generateBlob() throws Exception {
+        Blob blob = new Blob(fileName);
     }
 }
