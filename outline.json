@@ -1,0 +1,76 @@
+[
+    {
+        "className": "Blob",
+        "constructorConfigs": [
+            {
+                "parameterTypes": [
+                    "String"
+                ],
+                "values": [
+                    "filePath"
+                ]
+            }
+        ],
+        "methodConfigs": [
+            {
+                "methodName": "hash",
+                "parameters": [
+                    "File"
+                ],
+                "values": [
+                    "file"
+                ]
+            },
+            {
+                "methodName": "getFileContent",
+                "parameters": [],
+                "values": []
+            },
+            {
+                "methodName": "getHashString",
+                "parameters": [],
+                "values": []
+            },
+            {
+                "methodName": "copyData",
+                "parameters": [
+                    "File",
+                    "File"
+                ],
+                "values": [
+                    "fromFile",
+                    "toFile"
+                ]
+            }
+        ]
+    },
+    {
+        "className": "Index",
+        "constructorConfigs": [
+            {
+                "parameterTypes": [],
+                "values": []
+            }
+        ],
+        "methodConfigs": [
+            {
+                "methodName": "add",
+                "parameters": [
+                    "String"
+                ],
+                "values": [
+                    "fileName"
+                ]
+            },
+            {
+                "methodName": "remove",
+                "parameters": [
+                    "String"
+                ],
+                "values": [
+                    "fileName"
+                ]
+            }
+        ]
+    }
+]
