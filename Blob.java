@@ -10,38 +10,48 @@ import java.nio.file.*;
 
 public class Blob {
 
-    String hashFileString;
-    String fileContent;
+    String hashFileString, fileContent, folderPath;
 
-    public Blob(String filePath) throws Exception {
+    public Blob(String fileName, File originalFile) throws Exception {
+        hashFileString = getHashString(fileName);
 
-        // takes path & locates parent's path
-        // removes chars until locates "\\"
-        int i = filePath.length() - 1;
-        while (filePath.charAt(i) != '\\' && i > 0) {
-            // System.out.println(path.charAt(i));
-            i--;
-        }
-        // removes 2 chars
-        // System.out.println(path.substring(0, i));
-        String objectsFolderPath = filePath.substring(0, i);
+        // // takes path & locates parent's path
+        // // removes chars until locates "\\"
+        // int i = filePath.length() - 1;
+        // while (filePath.charAt(i) != '\\' && i > 0) {
+        // // System.out.println(path.charAt(i));
+        // i--;
+        // }
+        // // removes 2 chars
+        // // System.out.println(path.substring(0, i));
+        // String objectsFolderPath = filePath.substring(0, i);
 
         // creates folder if does not exist
-        File objectsFolder = new File(objectsFolderPath, "objects");
-        objectsFolder.mkdirs();
+        // makes directory if no exist
+        folderPath = "objects/";
+        Path oP = Paths.get(folderPath); // creates Path
+        if (!Files.exists(oP)) // creates file if directory doesnt exist
+            Files.createDirectories(oP); // creates Path
+        // File objectsFolder = new File(folderPath, "objects");
+        // objectsFolder.mkdirs();
+        File file = new File(folderPath + hashFileString);
+        Path hP = Paths.get(hashFileString);
+        if (!Files.exists(hP))
+            file.createNewFile();
 
-        // hash
-        hashFileString = hash(new File(filePath));
+        // // hash
+        // // hashFileString = hash(new File(filePath));
 
-        // create file
-        String blobFile = objectsFolderPath + "\\objects\\" + hashFileString + ".txt";
-        // System.out.println(blobFile);
-        File blob = new File(blobFile);
-        // if exists, wont create
-        blob.createNewFile();
+        // // create file
+        // String blobFile = objectsFolderPath + "\\objects\\" + hashFileString +
+        // ".txt";
+        // // System.out.println(blobFile);
+        // File blob = new File(blobFile);
+        // // if exists, wont create
+        // blob.createNewFile();
 
-        // write text to file
-        copyData(new File(filePath), blob);
+        // // write text to file
+        copyData(originalFile, file);
 
     }
 
@@ -53,35 +63,37 @@ public class Blob {
         return fileContent;
     }
 
-    public String hash(File file) throws Exception {
-
-        // hashes text in file; ignore the off chance of duplicates
+    private String getHashString(String input) {
         try {
-            MessageDigest md = MessageDigest.getInstance("SHA1");
-            FileInputStream fis = new FileInputStream(file);
-            byte[] dataBytes = new byte[1024];
+            // Create a MessageDigest instance for SHA-1
+            MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
 
-            int nread = 0;
+            // Convert the input string to bytes using UTF-8 encoding
+            byte[] bytes = input.getBytes("UTF-8");
 
-            while ((nread = fis.read(dataBytes)) != -1) {
-                md.update(dataBytes, 0, nread);
+            // Update the MessageDigest with the input bytes
+            sha1.update(bytes);
+
+            // Generate the SHA-1 hash
+            byte[] hashBytes = sha1.digest();
+
+            // Convert the hash bytes to a hexadecimal representation
+            StringBuilder hexHash = new StringBuilder();
+            for (byte b : hashBytes) {
+                String hex = Integer.toHexString(0xFF & b);
+                if (hex.length() == 1) {
+                    hexHash.append("0");
+                }
+                hexHash.append(hex);
             }
-            ;
 
-            byte[] mdbytes = md.digest();
-
-            // convert the byte to hex format
-            StringBuffer sb = new StringBuffer("");
-            for (int i = 0; i < mdbytes.length; i++) {
-                sb.append(Integer.toString((mdbytes[i] & 0xff) + 0x100, 16)
-                        .substring(1));
-            }
-
-            fis.close();
-
-            return sb.toString();
-        } catch (NoSuchAlgorithmException ex) {
-            throw new RuntimeException(ex);
+            // Return the hexadecimal SHA-1 hash
+            return hexHash.toString();
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+            // Handle exceptions (e.g., NoSuchAlgorithmException,
+            // UnsupportedEncodingException)
+            e.printStackTrace();
+            return null;
         }
     }
 

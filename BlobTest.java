@@ -2,6 +2,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
@@ -19,25 +20,26 @@ public class BlobTest {
 
     @Test
     public void testConstructor() throws Exception {
-        blob = new Blob(testFilePath);
-
-        assertNotNull(blob.getHashString());
-        assertNotNull(blob.getFileContent());
-
-        File blobFile = new File("objects/" + blob.getHashString() + ".txt");
-        assertTrue(blobFile.exists());
-
-        blobFile.delete();
+        String file1 = "test1.txt";
+        File file = new File(file1);
+        file.createNewFile();
+        Blob blob = new Blob(file1, file);
+        String hash = blob.getHashString();
+        File file2 = new File("objects/" + hash);
+        System.out.println("hash: " + hash);
+        assertTrue(file2.exists());
     }
 
     @Test
     public void testHash() throws Exception {
-        File testFile = new File(testFilePath);
-        blob = new Blob(testFilePath);
-
-        String expectedHash = calculateSHA1(testFile);
+        String filePath = "file1.txt";
+        File file = new File(filePath);
+        file.createNewFile();
+        PrintWriter pw = new PrintWriter(file);
+        pw.println("some content");
+        Blob blob = new Blob(filePath, file);
+        String expectedHash = calculateSHA1(file);
         String actualHash = blob.getHashString();
-
         assertEquals(expectedHash, actualHash);
     }
 
