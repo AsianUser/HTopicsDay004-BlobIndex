@@ -1,5 +1,4 @@
 
-import java.util.*;
 import java.io.*;
 import java.nio.file.*;
 
@@ -49,7 +48,7 @@ public class Index {
     public void add(String fileName) throws Exception {
         // make new blob & file in obj folder
         File file = new File(fileName);
-        Blob addBlob = new Blob(file);
+        Blob addBlob = new Blob(file, false);
 
         String hash = addBlob.getHashString();
 

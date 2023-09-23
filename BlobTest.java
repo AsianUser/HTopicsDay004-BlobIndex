@@ -21,7 +21,7 @@ public class BlobTest {
     @Test
     
     public void testConstructor() throws Exception {
-        Blob blob = new Blob(file);
+        Blob blob = new Blob(file, false);
         String hash = blob.getHashString();
         File file2 = new File("objects/" + hash);
         System.out.println("hash: " + hash);
@@ -30,7 +30,7 @@ public class BlobTest {
 
     @Test
     public void testHash() throws Exception {
-        Blob blob = new Blob(file);
+        Blob blob = new Blob(file, false);
         String myHash = blob.getHashString();
         String targetHash = "94e66df8cd09d410c62d9e0dc59d3a884e458e05";
         assertEquals(myHash, targetHash);
@@ -38,7 +38,7 @@ public class BlobTest {
 
     @Test
     public void testContents() throws Exception {
-        Blob blob = new Blob(file);
+        Blob blob = new Blob(file, false);
         String myContents = blob.getFileContent();
         assertEquals(myContents, "some content");
     }
