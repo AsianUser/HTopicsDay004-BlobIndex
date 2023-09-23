@@ -3,28 +3,18 @@ import org.junit.jupiter.api.Test;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class IndexTest {
     private Index index;
 
     @BeforeEach
-    public void setUp() {
-        index = new Index();
-    }
-
-    @Test
-    public void testInit() throws Exception {
-        index.init();
-
-        assertTrue(Files.exists(Paths.get(index.indexPath)));
-        assertTrue(Files.exists(Paths.get(index.objectsFolderPath)));
+    public void setUp() throws Exception {
+        index = new Index(false);
     }
 
     @Test
     public void testAddAndRemove() throws Exception {
-        index.init();
 
         String testFileName = "testFile.txt";
         index.add(testFileName);

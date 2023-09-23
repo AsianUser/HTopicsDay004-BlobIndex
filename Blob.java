@@ -1,47 +1,29 @@
 
-// all sha-1 imports
-import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
-import java.util.*;
 import java.io.*;
 import java.nio.file.*;
 
 public class Blob {
 
-    String hashFileString;
-    String fileContent;
+    String hashFileString, fileContents, folderPath, fileName;
 
-    public Blob(String filePath) throws Exception {
+    public Blob(File originalFile, boolean isWindows) throws Exception {
+        fileName = originalFile.getName();
+        fileContents = readFile(originalFile);
+        hashFileString = writeHashString(fileContents);
+        folderPath = "objects/";
 
-        // takes path & locates parent's path
-        // removes chars until locates "\\"
-        int i = filePath.length() - 1;
-        while (filePath.charAt(i) != '\\' && i > 0) {
-            // System.out.println(path.charAt(i));
-            i--;
-        }
-        // removes 2 chars
-        // System.out.println(path.substring(0, i));
-        String objectsFolderPath = filePath.substring(0, i);
+        Path oP = Paths.get(folderPath);
+        if (!Files.exists(oP))
+            Files.createDirectories(oP);
 
-        // creates folder if does not exist
-        File objectsFolder = new File(objectsFolderPath, "objects");
-        objectsFolder.mkdirs();
+        File file = new File(folderPath + hashFileString);
+        Path hP = Paths.get(hashFileString);
+        if (!Files.exists(hP))
+            file.createNewFile();
 
-        // hash
-        hashFileString = hash(new File(filePath));
-
-        // create file
-        String blobFile = objectsFolderPath + "\\objects\\" + hashFileString + ".txt";
-        // System.out.println(blobFile);
-        File blob = new File(blobFile);
-        // if exists, wont create
-        blob.createNewFile();
-
-        // write text to file
-        copyData(new File(filePath), blob);
+        copyData(file);
 
     }
 
@@ -50,59 +32,66 @@ public class Blob {
     }
 
     public String getFileContent() {
-        return fileContent;
-    }
-
-    public String hash(File file) throws Exception {
-
-        // hashes text in file; ignore the off chance of duplicates
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA1");
-            FileInputStream fis = new FileInputStream(file);
-            byte[] dataBytes = new byte[1024];
-
-            int nread = 0;
-
-            while ((nread = fis.read(dataBytes)) != -1) {
-                md.update(dataBytes, 0, nread);
-            }
-            ;
-
-            byte[] mdbytes = md.digest();
-
-            // convert the byte to hex format
-            StringBuffer sb = new StringBuffer("");
-            for (int i = 0; i < mdbytes.length; i++) {
-                sb.append(Integer.toString((mdbytes[i] & 0xff) + 0x100, 16)
-                        .substring(1));
-            }
-
-            fis.close();
-
-            return sb.toString();
-        } catch (NoSuchAlgorithmException ex) {
-            throw new RuntimeException(ex);
-        }
+        return fileContents;
     }
 
     // copies data/text from one method to the next
-    public void copyData(File fromFile, File toFile) throws Exception {
-        String fileData = "";
-
-        // creates string
-        BufferedReader buffReader = new BufferedReader(new FileReader(fromFile));
-        while (buffReader.ready()) {
-            int chara = buffReader.read();
-            fileData += (char) chara;
-        }
-
-        buffReader.close();
-
-        // actually writes
+    private void copyData(File toFile) throws Exception {
         PrintWriter pw = new PrintWriter(toFile);
-        pw.write(fileData);
-
+        pw.write(fileContents);
         pw.close();
+    }
+
+    private String writeHashString(String input) {
+        try {
+            // Create a MessageDigest instance for SHA-1
+            MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
+
+            // Convert the input string to bytes using UTF-8 encoding
+            byte[] bytes = input.getBytes("UTF-8");
+
+            // Update the MessageDigest with the input bytes
+            sha1.update(bytes);
+
+            // Generate the SHA-1 hash
+            byte[] hashBytes = sha1.digest();
+
+            // Convert the hash bytes to a hexadecimal representation
+            StringBuilder hexHash = new StringBuilder();
+            for (byte b : hashBytes) {
+                String hex = Integer.toHexString(0xFF & b);
+                if (hex.length() == 1) {
+                    hexHash.append("0");
+                }
+                hexHash.append(hex);
+            }
+
+            // Return the hexadecimal SHA-1 hash
+            return hexHash.toString();
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+            // Handle exceptions (e.g., NoSuchAlgorithmException,
+            // UnsupportedEncodingException)
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private String readFile(File file) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        BufferedReader br = new BufferedReader(new FileReader(file));
+        String line;
+        Boolean isFirst = true;
+        while (br.ready()) {
+            line = br.readLine();
+            if (isFirst) {
+                sb.append(line);
+                isFirst = false;
+            } else
+                sb.append("\n" + line);
+        }
+        br.close();
+        return sb.toString();
+
     }
 
 }
