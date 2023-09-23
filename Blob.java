@@ -10,49 +10,24 @@ import java.nio.file.*;
 
 public class Blob {
 
-    String hashFileString, fileContent, folderPath, fileName;
+    String hashFileString, fileContents, folderPath, fileName;
 
     public Blob(File originalFile) throws Exception {
         fileName = originalFile.getName();
-        hashFileString = getHashString(fileName);
-
-        // // takes path & locates parent's path
-        // // removes chars until locates "\\"
-        // int i = filePath.length() - 1;
-        // while (filePath.charAt(i) != '\\' && i > 0) {
-        // // System.out.println(path.charAt(i));
-        // i--;
-        // }
-        // // removes 2 chars
-        // // System.out.println(path.substring(0, i));
-        // String objectsFolderPath = filePath.substring(0, i);
-
-        // creates folder if does not exist
-        // makes directory if no exist
+        fileContents = readFile(originalFile);
+        hashFileString = writeHashString(fileContents);
         folderPath = "objects/";
+
         Path oP = Paths.get(folderPath); // creates Path
         if (!Files.exists(oP)) // creates file if directory doesnt exist
             Files.createDirectories(oP); // creates Path
-        // File objectsFolder = new File(folderPath, "objects");
-        // objectsFolder.mkdirs();
+
         File file = new File(folderPath + hashFileString);
         Path hP = Paths.get(hashFileString);
         if (!Files.exists(hP))
             file.createNewFile();
 
-        // // hash
-        // // hashFileString = hash(new File(filePath));
-
-        // // create file
-        // String blobFile = objectsFolderPath + "\\objects\\" + hashFileString +
-        // ".txt";
-        // // System.out.println(blobFile);
-        // File blob = new File(blobFile);
-        // // if exists, wont create
-        // blob.createNewFile();
-
-        // // write text to file
-        copyData(originalFile, file);
+        copyData(file);
 
     }
 
@@ -61,10 +36,17 @@ public class Blob {
     }
 
     public String getFileContent() {
-        return fileContent;
+        return fileContents;
     }
 
-    private String getHashString(String input) {
+    // copies data/text from one method to the next
+    private void copyData(File toFile) throws Exception {
+        PrintWriter pw = new PrintWriter(toFile);
+        pw.write(fileContents);
+        pw.close();
+    }
+
+    private String writeHashString(String input) {
         try {
             // Create a MessageDigest instance for SHA-1
             MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
@@ -98,24 +80,22 @@ public class Blob {
         }
     }
 
-    // copies data/text from one method to the next
-    public void copyData(File fromFile, File toFile) throws Exception {
-        String fileData = "";
-
-        // creates string
-        BufferedReader buffReader = new BufferedReader(new FileReader(fromFile));
-        while (buffReader.ready()) {
-            int chara = buffReader.read();
-            fileData += (char) chara;
+    private String readFile(File file) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        BufferedReader br = new BufferedReader(new FileReader(file));
+        String line;
+        Boolean isFirst = true;
+        while (br.ready()) {
+            line = br.readLine();
+            if (isFirst) {
+                sb.append(line);
+                isFirst = false;
+            } else
+                sb.append("\n" + line);
         }
+        br.close();
+        return sb.toString();
 
-        buffReader.close();
-
-        // actually writes
-        PrintWriter pw = new PrintWriter(toFile);
-        pw.write(fileData);
-
-        pw.close();
     }
 
 }
