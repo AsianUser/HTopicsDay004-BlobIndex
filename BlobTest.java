@@ -19,6 +19,7 @@ public class BlobTest {
     }
 
     @Test
+    
     public void testConstructor() throws Exception {
         Blob blob = new Blob(file);
         String hash = blob.getHashString();

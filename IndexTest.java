@@ -3,7 +3,6 @@ import org.junit.jupiter.api.Test;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class IndexTest {
@@ -11,7 +10,7 @@ public class IndexTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        index = new Index();
+        index = new Index(false);
     }
 
     @Test

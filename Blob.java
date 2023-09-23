@@ -1,10 +1,6 @@
 
-// all sha-1 imports
-import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
-import java.util.*;
 import java.io.*;
 import java.nio.file.*;
 
@@ -12,15 +8,15 @@ public class Blob {
 
     String hashFileString, fileContents, folderPath, fileName;
 
-    public Blob(File originalFile) throws Exception {
+    public Blob(File originalFile, boolean isWindows) throws Exception {
         fileName = originalFile.getName();
         fileContents = readFile(originalFile);
         hashFileString = writeHashString(fileContents);
         folderPath = "objects/";
 
-        Path oP = Paths.get(folderPath); 
-        if (!Files.exists(oP)) 
-            Files.createDirectories(oP); 
+        Path oP = Paths.get(folderPath);
+        if (!Files.exists(oP))
+            Files.createDirectories(oP);
 
         File file = new File(folderPath + hashFileString);
         Path hP = Paths.get(hashFileString);

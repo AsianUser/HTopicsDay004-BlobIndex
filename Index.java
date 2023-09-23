@@ -9,24 +9,41 @@ public class Index {
     String indexPath; // path to index.txt
     String objectsFolderPath;
 
-    public Index() throws IOException {
+    public Index(boolean isWindows) throws IOException {
         // ._.
-        objectsFolderPath = "./test/objects/";
+        if (isWindows) {
+            String testFolderPath = ".\\test";
 
-        Path tP = Paths.get("test");
-        if (!Files.exists(tP))
-            Files.createDirectories(tP);
+            indexFile = new File(testFolderPath, "index");
+            indexFile.delete();
+            indexFile.createNewFile();
 
-        Path oP = Paths.get(objectsFolderPath);
-        if (!Files.exists(oP))
-            Files.createDirectories(oP);
+            indexPath = indexFile.getPath();
+            indexFile.createNewFile();
 
-        // makes index file - if exists, delete then remake
-        indexFile = new File("test", "index");
-        indexFile.delete();
-        indexFile.createNewFile();
+            // create objects folder
+            File objectsFolder = new File(testFolderPath, "objects");
+            objectsFolder.mkdirs();
+            objectsFolderPath = objectsFolder.getPath();
+        } else {
+            objectsFolderPath = "./test/objects/";
 
-        indexPath = indexFile.getPath();
+            Path tP = Paths.get("test");
+            if (!Files.exists(tP))
+                Files.createDirectories(tP);
+
+            Path oP = Paths.get(objectsFolderPath);
+            if (!Files.exists(oP))
+                Files.createDirectories(oP);
+
+            // makes index file - if exists, delete then remake
+            indexFile = new File("test", "index");
+            indexFile.delete();
+            indexFile.createNewFile();
+
+            indexPath = indexFile.getPath();
+        }
+
     }
 
     public void add(String fileName) throws Exception {
