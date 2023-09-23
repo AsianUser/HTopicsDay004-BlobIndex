@@ -5,35 +5,34 @@ import java.nio.file.*;
 
 public class Index {
 
-    // define path to folder I want to index - this is ok
-    String testFolderPath = ".\\test";
-
     File indexFile;
-    String indexPath = ""; // path to index.txt
-    String objectsFolderPath = "";
+    String indexPath; // path to index.txt
+    String objectsFolderPath;
 
-    public Index() {
+    public Index() throws IOException {
         // ._.
-    }
+        objectsFolderPath = "./test/objects/";
 
-    public void init() throws Exception {
+        Path tP = Paths.get("test");
+        if (!Files.exists(tP))
+            Files.createDirectories(tP);
+
+        Path oP = Paths.get(objectsFolderPath);
+        if (!Files.exists(oP))
+            Files.createDirectories(oP);
+
         // makes index file - if exists, delete then remake
-        indexFile = new File(testFolderPath, "index");
+        indexFile = new File("test", "index");
         indexFile.delete();
         indexFile.createNewFile();
 
         indexPath = indexFile.getPath();
-        indexFile.createNewFile();
-
-        // create objects folder
-        File objectsFolder = new File(testFolderPath, "objects");
-        objectsFolder.mkdirs();
-        objectsFolderPath = objectsFolder.getPath();
     }
 
     public void add(String fileName) throws Exception {
         // make new blob & file in obj folder
-        Blob addBlob = new Blob(testFolderPath + "\\" + fileName);
+        File file = new File(fileName);
+        Blob addBlob = new Blob(file);
 
         String hash = addBlob.getHashString();
 

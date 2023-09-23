@@ -10,21 +10,12 @@ public class IndexTest {
     private Index index;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws Exception {
         index = new Index();
     }
 
     @Test
-    public void testInit() throws Exception {
-        index.init();
-
-        assertTrue(Files.exists(Paths.get(index.indexPath)));
-        assertTrue(Files.exists(Paths.get(index.objectsFolderPath)));
-    }
-
-    @Test
     public void testAddAndRemove() throws Exception {
-        index.init();
 
         String testFileName = "testFile.txt";
         index.add(testFileName);

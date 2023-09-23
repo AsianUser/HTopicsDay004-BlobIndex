@@ -18,9 +18,9 @@ public class Blob {
         hashFileString = writeHashString(fileContents);
         folderPath = "objects/";
 
-        Path oP = Paths.get(folderPath); // creates Path
-        if (!Files.exists(oP)) // creates file if directory doesnt exist
-            Files.createDirectories(oP); // creates Path
+        Path oP = Paths.get(folderPath); 
+        if (!Files.exists(oP)) 
+            Files.createDirectories(oP); 
 
         File file = new File(folderPath + hashFileString);
         Path hP = Paths.get(hashFileString);
