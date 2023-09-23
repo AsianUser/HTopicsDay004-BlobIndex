@@ -10,9 +10,10 @@ import java.nio.file.*;
 
 public class Blob {
 
-    String hashFileString, fileContent, folderPath;
+    String hashFileString, fileContent, folderPath, fileName;
 
-    public Blob(String fileName, File originalFile) throws Exception {
+    public Blob(File originalFile) throws Exception {
+        fileName = originalFile.getName();
         hashFileString = getHashString(fileName);
 
         // // takes path & locates parent's path
