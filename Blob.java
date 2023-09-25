@@ -8,6 +8,9 @@ import java.util.*;
 import java.io.*;
 import java.nio.file.*;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 public class Blob {
 
     String hashFileString;
@@ -31,7 +34,7 @@ public class Blob {
         objectsFolder.mkdirs();
 
         // hash
-        hashFileString = hash(new File(filePath));
+        // hashFileString = hash(new File(filePath));
 
         // create file
         String blobFile = objectsFolderPath + "\\objects\\" + hashFileString + ".txt";
@@ -41,7 +44,7 @@ public class Blob {
         blob.createNewFile();
 
         // write text to file
-        copyData(new File(filePath), blob);
+        // copyData(new File(filePath), blob);
 
     }
 
@@ -105,4 +108,15 @@ public class Blob {
         pw.close();
     }
 
+    public static String getSHA1(String input) throws NoSuchAlgorithmException {
+
+        MessageDigest mDigest = MessageDigest.getInstance("SHA1");
+        byte[] result = mDigest.digest(input.getBytes());
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < result.length; i++) {
+            sb.append(Integer.toString((result[i] & 0xff) + 0x100, 16).substring(1));
+        }
+
+        return sb.toString();
+    }
 }

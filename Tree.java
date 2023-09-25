@@ -1,7 +1,9 @@
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -11,6 +13,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.security.*;
 
 public class Tree {
     private List<String> entries;
@@ -38,9 +41,10 @@ public class Tree {
     // used my code to fix
 
     public void add(String name) throws Exception {
-        Blob blob = new Blob(name);
+        Blob blob = new Blob("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/" + name);
 
-        blobs.put(name, blob.getHashString());
+        String contents = blob.fileContent;
+        blobs.put(name, Commit.generateSHA(contents));
         printBlobs();
     }
 
@@ -109,7 +113,27 @@ public class Tree {
     }
 
     public String allConents() {
-        return combinedContents;
+
+        BufferedReader reader;
+        String out = "";
+
+        try {
+            reader = new BufferedReader(
+                    new FileReader("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/Tree"));
+            String line = reader.readLine();
+
+            while (line != null) {
+                out += line + '\n';
+                // read next line
+                line = reader.readLine();
+            }
+
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return out;
     }
 
     public static String generateSHA(String input) throws NoSuchAlgorithmException {
