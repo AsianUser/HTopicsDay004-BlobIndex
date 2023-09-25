@@ -1,4 +1,5 @@
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -177,6 +178,10 @@ public class Commit {
 
         pw.close();
 
+    }
+
+    public void add(String newFile) throws NoSuchAlgorithmException, IOException {
+        tree.add(newFile);
     }
 
 }

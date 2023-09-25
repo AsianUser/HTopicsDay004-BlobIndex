@@ -4,7 +4,8 @@ public class CommitTester {
         System.out.println(Commit.getDate());
         Commit com = new Commit("Bo", "Cool!");
         com.commitFile();
-
+        com.add("test.txt");
+        com.commitFile();
     }
 
 }

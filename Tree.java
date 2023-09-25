@@ -33,10 +33,11 @@ public class Tree {
     }
 
     public void add(String entry) throws NoSuchAlgorithmException, IOException {
-        entries.add(entry);
-        combinedContents += entry;
-        fileName = generateSHA(combinedContents);
-        writeToFile(fileName);
+        File file = new File("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/" + entry);
+        // entries.add(entry);
+        combinedContents += entry + "\n";
+        // fileName = generateSHA(combinedContents);
+        writeToFile("Tree");
     }
 
     public void remove(String name) throws NoSuchAlgorithmException, IOException {
@@ -62,7 +63,7 @@ public class Tree {
         for (String entry : entries) {
             combinedContents += entry + "\n";
         }
-        File file = new File("objects/" + fileName);
+        File file = new File("Tree-Objects/" + fileName);
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, false))) {
             writer.write(combinedContents);
         }
