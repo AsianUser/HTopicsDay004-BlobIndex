@@ -9,6 +9,7 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class Tree {
@@ -17,6 +18,8 @@ public class Tree {
     String combinedContents = "";
     File folder;
     File treeDoc;
+
+    HashMap<String, String> blobs = new HashMap();
 
     public Tree() throws NoSuchAlgorithmException, FileNotFoundException {
         // for (String entry : entries) {
@@ -32,31 +35,67 @@ public class Tree {
 
     }
 
-    public void add(String entry) throws NoSuchAlgorithmException, IOException {
-        File file = new File("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/" + entry);
-        // entries.add(entry);
-        combinedContents += entry + "\n";
-        // fileName = generateSHA(combinedContents);
-        writeToFile("Tree");
+    // used my code to fix
+
+    public void add(String name) throws Exception {
+        Blob blob = new Blob(name);
+
+        blobs.put(name, blob.getHashString());
+        printBlobs();
     }
 
-    public void remove(String name) throws NoSuchAlgorithmException, IOException {
-        entries.removeIf(entry -> {
-            String[] parts = entry.split(" : ");
-            if (parts.length >= 3) {
-                String typeOfFile = parts[0];
-                String shaOfFile = parts[1];
-                String optionalFileName = parts[2];
-                return shaOfFile.equals(name) || optionalFileName.equals(name);
-            }
-            return false;
-        });
-        for (String entry : entries) {
-            combinedContents += entry + "\n";
-        }
-        fileName = generateSHA(combinedContents);
-        writeToFile(fileName);
+    public void remove(String fileName) {
+        blobs.remove(fileName);
+        printBlobs();
+
     }
+
+    public void printBlobs() {
+        try {
+            PrintWriter pw = new PrintWriter(
+                    "/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/Tree");
+
+            String s = "";
+            for (HashMap.Entry<String, String> entry : blobs.entrySet()) {
+                s += entry.getKey() + " : " + entry.getValue() + "\n";
+            }
+
+            pw.print(s);
+            pw.close();
+
+        } catch (Exception e) {
+
+        }
+
+    }
+
+    // public void add(String entry) throws NoSuchAlgorithmException, IOException {
+    // File file = new File("/Users/lilbarbar/Desktop/Honors
+    // Topics/Bens-Amazing-Git/Tree-Objects/" + entry);
+    // // entries.add(entry);
+    // combinedContents += entry + "\n";
+    // // fileName = generateSHA(combinedContents);
+    // writeToFile("Tree");
+    // }
+
+    // public void remove(String name) throws NoSuchAlgorithmException, IOException
+    // {
+    // entries.removeIf(entry -> {
+    // String[] parts = entry.split(" : ");
+    // if (parts.length >= 3) {
+    // String typeOfFile = parts[0];
+    // String shaOfFile = parts[1];
+    // String optionalFileName = parts[2];
+    // return shaOfFile.equals(name) || optionalFileName.equals(name);
+    // }
+    // return false;
+    // });
+    // for (String entry : entries) {
+    // combinedContents += entry + "\n";
+    // }
+    // fileName = generateSHA(combinedContents);
+    // writeToFile(fileName);
+    // }
 
     public void writeToFile(String fileName) throws IOException, NoSuchAlgorithmException {
         String combinedContents = "";

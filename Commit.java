@@ -180,7 +180,7 @@ public class Commit {
 
     }
 
-    public void add(String newFile) throws NoSuchAlgorithmException, IOException {
+    public void add(String newFile) throws Exception {
         tree.add(newFile);
     }
 
