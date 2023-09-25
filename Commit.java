@@ -4,14 +4,22 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.ArrayList;
 
 public class Commit {
 
     private String author;
     private String summary;
     private String prevSHA;
+    private String currentSHA;
     private String nextSHA;
     private Tree tree = new Tree();
+    private int indexOfCurrent = 0;
+
+    ArrayList<String> hashes = new ArrayList<>();
+
+    private int totalCommits = 0;
+    private int commitIndex = 0;
 
     public Commit(String author, String summary) throws Exception {
 
@@ -66,7 +74,94 @@ public class Commit {
     }
 
     public void commitFile() throws FileNotFoundException, NoSuchAlgorithmException {
-        String currentSHA = generateSHA(tree.allConents());
+        currentSHA = generateSHA(tree.allConents());
+        hashes.add(currentSHA);
+        indexOfCurrent = hashes.indexOf(currentSHA);
+
+        if (indexOfCurrent == hashes.size() - 1) {
+            nextSHA = null;
+        } else {
+            nextSHA = hashes.get(indexOfCurrent + 1);
+        }
+
+        if (indexOfCurrent == 0) {
+            prevSHA = null;
+        } else {
+            prevSHA = hashes.get(indexOfCurrent - 1);
+        }
+
+        PrintWriter pw = new PrintWriter("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/Commit");
+
+        pw.print("Current: " + currentSHA + "\n");
+        if (prevSHA != null) {
+            pw.print("Previous: " + prevSHA + "\n");
+
+        }
+        if (nextSHA != null) {
+            pw.print("Next: " + nextSHA + "\n");
+
+        }
+        pw.print(author + "\n" + getDate() + "\n" + summary);
+
+        pw.close();
+
+    }
+
+    public void seeNext() throws FileNotFoundException {
+        if (indexOfCurrent == hashes.size() - 1) {
+            nextSHA = null;
+        } else {
+            indexOfCurrent++;
+        }
+
+        if (indexOfCurrent == hashes.size() - 1) {
+            nextSHA = null;
+        } else {
+            nextSHA = hashes.get(indexOfCurrent + 1);
+        }
+
+        if (indexOfCurrent == 0) {
+            prevSHA = null;
+        } else {
+            prevSHA = hashes.get(indexOfCurrent - 1);
+        }
+
+        PrintWriter pw = new PrintWriter("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/Commit");
+
+        pw.print("Current: " + currentSHA + "\n");
+        if (prevSHA != null) {
+            pw.print("Previous: " + prevSHA + "\n");
+
+        }
+        if (nextSHA != null) {
+            pw.print("Next: " + nextSHA + "\n");
+
+        }
+        pw.print(author + "\n" + getDate() + "\n" + summary);
+
+        pw.close();
+
+    }
+
+    public void seePrev() throws FileNotFoundException {
+        if (indexOfCurrent == 0) {
+            prevSHA = null;
+        } else {
+            indexOfCurrent--;
+        }
+
+        if (indexOfCurrent == hashes.size() - 1) {
+            nextSHA = null;
+        } else {
+            nextSHA = hashes.get(indexOfCurrent + 1);
+        }
+
+        if (indexOfCurrent == 0) {
+            prevSHA = null;
+        } else {
+            prevSHA = hashes.get(indexOfCurrent - 1);
+        }
+
         PrintWriter pw = new PrintWriter("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/Commit");
 
         pw.print("Current: " + currentSHA + "\n");
