@@ -8,8 +8,11 @@ public class CommitTester {
         com.commitFile();
         PrintWriter pw = new PrintWriter("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/Tree");
         pw.write("lol");
+        com.commitFile();
+        pw.write("\nhehe");
         pw.close();
         com.commitFile();
+        com.seePrev();
 
     }
 
