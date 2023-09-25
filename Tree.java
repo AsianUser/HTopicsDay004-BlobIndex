@@ -1,8 +1,10 @@
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -13,13 +15,21 @@ public class Tree {
     private List<String> entries;
     String fileName;
     String combinedContents = "";
+    File folder;
+    File treeDoc;
 
-    public Tree() throws NoSuchAlgorithmException {
-        for (String entry : entries) {
-            combinedContents += entry + "\n";
-        }
-        fileName = generateSHA(combinedContents);
-        File file = new File("objects/" + fileName);
+    public Tree() throws NoSuchAlgorithmException, FileNotFoundException {
+        // for (String entry : entries) {
+        // combinedContents += entry + "\n";
+        // }
+        // fileName = generateSHA(combinedContents);
+
+        // File file = new File("objects/" + fileName);
+        folder = new File("Tree-Objects");
+        folder.mkdir();
+        treeDoc = new File("./Tree-Objects/Tree");
+        PrintWriter pw = new PrintWriter(treeDoc);
+
     }
 
     public void add(String entry) throws NoSuchAlgorithmException, IOException {
@@ -56,6 +66,10 @@ public class Tree {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, false))) {
             writer.write(combinedContents);
         }
+    }
+
+    public String allConents() {
+        return combinedContents;
     }
 
     public static String generateSHA(String input) throws NoSuchAlgorithmException {
