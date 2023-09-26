@@ -112,28 +112,20 @@ public class Tree {
         }
     }
 
-    public String allConents() {
+    public String allConents() throws IOException { // gotten from Chris' code when you assigned him as partner eaerlier
 
-        BufferedReader reader;
-        String out = "";
+        StringBuilder record = new StringBuilder("");
 
-        try {
-            reader = new BufferedReader(
-                    new FileReader("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/Tree"));
-            String line = reader.readLine();
+        // FileReader fr = new FileReader ()
+        BufferedReader text = new BufferedReader(
+                new FileReader("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/Tree"));
 
-            while (line != null) {
-                out += line + '\n';
-                // read next line
-                line = reader.readLine();
-            }
-
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        while (text.ready()) {
+            record.append((char) text.read());
         }
 
-        return out;
+        text.close();
+        return record.toString();
     }
 
     public static String generateSHA(String input) throws NoSuchAlgorithmException {
