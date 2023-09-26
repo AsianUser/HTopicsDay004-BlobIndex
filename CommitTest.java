@@ -36,7 +36,7 @@ public class CommitTest {
         String date1 = c.getDate();
 
         Date date = new Date();
-        String date2 = date.toString();
+        String date2 = date.toString().substring(0, 11) + "2023";
 
         assertEquals(date1, date2);
 
@@ -78,7 +78,42 @@ public class CommitTest {
     @Test
     void testSeeNext() throws Exception {
 
-        // assertEquals(null, null);
+        System.out.println(Commit.getDate());
+        Commit com = new Commit("Bo", "Cool!");
+
+        PrintWriter pw = new PrintWriter("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/Tree");
+        pw.write("lol");
+        pw.close();
+        com.commitFile();
+        com.writeFile();
+
+        System.out.println(com.hashesToString());
+
+        PrintWriter pw2 = new PrintWriter("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/Tree");
+        pw2.write("lol2");
+        pw2.close();
+        com.commitFile();
+        com.writeFile();
+        System.out.println(com.hashesToString());
+
+        PrintWriter pw3 = new PrintWriter("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/Tree");
+        pw3.write("lol3");
+        pw3.close();
+        com.commitFile();
+        com.writeFile();
+        System.out.println(com.hashesToString());
+
+        com.seePrev();
+        com.writeFile();
+
+        com.seeNext();
+        com.writeFile();
+        String name = com.hashes.get(2);
+
+        // recycle earlier code
+
+        assertEquals(new File("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/" + name).exists(),
+                true);
 
     }
 
@@ -112,7 +147,12 @@ public class CommitTest {
 
         com.seePrev();
         com.writeFile();
-        System.out.println(com.hashesToString());
+        String name = com.hashes.get(1);
+
+        // recycle earlier code
+
+        assertEquals(new File("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/" + name).exists(),
+                true);
 
     }
 

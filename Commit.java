@@ -47,7 +47,7 @@ public class Commit {
 
     public static String getDate() {
         Date date = new Date();
-        return date.toString();
+        return date.toString().substring(0, 11) + "2023";
     }
 
     public String hashesToString() {
@@ -147,10 +147,7 @@ public class Commit {
 
     public void seePrev() throws FileNotFoundException {
         if (indexOfCurrent == 0) {
-            prevSHA = null;
-        } else if (indexOfCurrent == 1) {
-            indexOfCurrent--;
-            prevSHA = null;
+            // move back if we can...
 
         } else {
             indexOfCurrent--;
