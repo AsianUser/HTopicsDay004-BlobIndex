@@ -8,47 +8,62 @@ public class Index {
     String indexPath; // path to index.txt
     String objectsFolderPath;
 
-    public Index(boolean isWindows) throws IOException {
+    public Index() throws IOException {
         // ._.
-        if (isWindows) {
-            String testFolderPath = ".\\test";
+        // if (isWindows) {
+        // String testFolderPath = "./test";
 
-            indexFile = new File(testFolderPath, "index");
-            indexFile.delete();
-            indexFile.createNewFile();
+        // indexFile = new File(testFolderPath, "index");
+        // indexFile.delete();
+        // indexFile.createNewFile();
 
-            indexPath = indexFile.getPath();
-            indexFile.createNewFile();
+        // indexPath = indexFile.getPath();
+        // indexFile.createNewFile();
 
-            // create objects folder
-            File objectsFolder = new File(testFolderPath, "objects");
-            objectsFolder.mkdirs();
-            objectsFolderPath = objectsFolder.getPath();
-        } else {
-            objectsFolderPath = "./test/objects/";
+        // // create objects folder
+        // File objectsFolder = new File(testFolderPath, "objects");
+        // objectsFolder.mkdirs();
+        // objectsFolderPath = objectsFolder.getPath();
+        // } else {
+        objectsFolderPath = "./test/objects/";
 
-            Path tP = Paths.get("test");
-            if (!Files.exists(tP))
-                Files.createDirectories(tP);
+        Path tP = Paths.get("test");
+        if (!Files.exists(tP))
+            Files.createDirectories(tP);
 
-            Path oP = Paths.get(objectsFolderPath);
-            if (!Files.exists(oP))
-                Files.createDirectories(oP);
+        Path oP = Paths.get(objectsFolderPath);
+        if (!Files.exists(oP))
+            Files.createDirectories(oP);
 
-            // makes index file - if exists, delete then remake
-            indexFile = new File("test", "index");
-            indexFile.delete();
-            indexFile.createNewFile();
+        // makes index file - if exists, delete then remake
+        indexFile = new File("test", "index");
+        indexFile.delete();
+        indexFile.createNewFile();
 
-            indexPath = indexFile.getPath();
-        }
+        indexPath = indexFile.getPath();
+        // }
 
+    }
+
+    public void init() throws Exception {
+        objectsFolderPath = "./test/objects/";
+
+        Path oP = Paths.get(objectsFolderPath);
+        if (!Files.exists(oP))
+            Files.createDirectories(oP);
+
+        // makes index file - if exists, delete then remake
+        indexFile = new File("test", "index");
+        indexFile.delete();
+        indexFile.createNewFile();
+
+        indexPath = indexFile.getPath();
     }
 
     public void add(String fileName) throws Exception {
         // make new blob & file in obj folder
         File file = new File(fileName);
-        Blob addBlob = new Blob(file, false);
+        Blob addBlob = new Blob(file);
 
         String hash = addBlob.getHashString();
 

@@ -10,7 +10,7 @@ public class IndexTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        index = new Index(false);
+        index = new Index();
     }
 
     @Test

@@ -1,8 +1,11 @@
+import java.io.File;
 
 public class Tester {
     public static void main(String[] args) throws Exception {
-        Blob test = new Blob(
-                ".\\test\\test.txt");
+
+        File blobTest = new File(".\\test\\test.txt");
+
+        Blob test = new Blob(blobTest);
 
         Index indexTest = new Index();
 

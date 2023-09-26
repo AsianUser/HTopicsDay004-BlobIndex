@@ -8,7 +8,30 @@ public class Blob {
 
     String hashFileString, fileContents, folderPath, fileName;
 
-    public Blob(File originalFile, boolean isWindows) throws Exception {
+    public Blob(File originalFile) throws Exception {
+        fileName = originalFile.getName();
+        fileContents = readFile(originalFile);
+        hashFileString = writeHashString(fileContents);
+        folderPath = "objects/";
+
+        Path oP = Paths.get(folderPath);
+        if (!Files.exists(oP))
+            Files.createDirectories(oP);
+
+        File file = new File(folderPath + hashFileString);
+        Path hP = Paths.get(hashFileString);
+        if (!Files.exists(hP))
+            file.createNewFile();
+
+        copyData(file);
+
+    }
+
+    // file name ver
+    public Blob(String fileName) throws Exception {
+
+        File originalFile = new File(fileName);
+
         fileName = originalFile.getName();
         fileContents = readFile(originalFile);
         hashFileString = writeHashString(fileContents);
