@@ -37,25 +37,29 @@ public class CommitTester {
 
         com.writeFile();
 
-        com.seePrev();
-        com.seePrev();
-        com.seePrev();
-        com.writeFile();
+        // com.seePrev();
+        // com.writeFile();
+        // com.seePrev();
+        // com.writeFile();
+        // com.seePrev();
+        // com.writeFile();
 
-        Commit c = new Commit("Bo", "Cool!", "597dd55fa9e8a39cbc8d18a92ecff4a02c589d9");
-        c.commitFile();
-        c.writeFile();
-        System.out.println(c.hashesToString());
+        // Commit c = new Commit("Bo", "Cool!",
+        // "597dd55fa9e8a39cbc8d18a92ecff4a02c589d9");
+        // c.commitFile();
+        // c.writeFile();
+        // System.out.println(c.hashesToString());
 
-        PrintWriter pw5 = new PrintWriter("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/Tree");
-        pw5.write("hehe");
-        pw5.close();
-        c.commitFile();
-        c.writeFile();
-        System.out.println(c.hashesToString());
+        // PrintWriter pw5 = new PrintWriter("/Users/lilbarbar/Desktop/Honors
+        // Topics/Bens-Amazing-Git/Tree-Objects/Tree");
+        // pw5.write("hehe");
+        // pw5.close();
+        // c.commitFile();
+        // c.writeFile();
+        // System.out.println(c.hashesToString());
 
-        c.seePrev();
-        c.writeFile();
+        // c.seePrev();
+        // c.writeFile();
 
     }
 

@@ -15,7 +15,7 @@ public class Commit {
     private String prevSHA;
     private String currentSHA;
     private String nextSHA;
-    private Tree tree = new Tree();
+    private Tree tree;
     private int indexOfCurrent;
 
     ArrayList<String> hashes = new ArrayList<>();
@@ -24,6 +24,8 @@ public class Commit {
     private int commitIndex = 0;
 
     public Commit(String author, String summary) throws Exception {
+
+        makeTree();
 
         this.author = author;
         this.summary = summary;
@@ -84,7 +86,8 @@ public class Commit {
     }
 
     public void writeFile() throws FileNotFoundException {
-        PrintWriter pw = new PrintWriter("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/Commit");
+        PrintWriter pw = new PrintWriter(
+                "/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/" + currentSHA);
 
         pw.print("Current: " + currentSHA + "\n");
         if (prevSHA != null) {
@@ -120,11 +123,13 @@ public class Commit {
     }
 
     public void seeNext() throws FileNotFoundException {
-        if (indexOfCurrent == hashes.size() - 1) {
+        if (indexOfCurrent >= hashes.size() - 1) {
             nextSHA = null;
         } else {
             indexOfCurrent++;
         }
+
+        currentSHA = hashes.get(indexOfCurrent);
 
         if (indexOfCurrent == hashes.size() - 1) {
             nextSHA = null;
@@ -143,9 +148,14 @@ public class Commit {
     public void seePrev() throws FileNotFoundException {
         if (indexOfCurrent == 0) {
             prevSHA = null;
+        } else if (indexOfCurrent == 1) {
+            indexOfCurrent--;
+            prevSHA = null;
+
         } else {
             indexOfCurrent--;
         }
+
         currentSHA = hashes.get(indexOfCurrent);
 
         if (indexOfCurrent == hashes.size() - 1) {
@@ -162,8 +172,9 @@ public class Commit {
 
     }
 
-    public void add(String newFile) throws Exception {
-        tree.add(newFile);
+    public String makeTree() throws NoSuchAlgorithmException, IOException {
+        tree = new Tree();
+        return generateSHA(tree.allConents());
     }
 
 }

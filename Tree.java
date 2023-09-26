@@ -31,9 +31,9 @@ public class Tree {
         // fileName = generateSHA(combinedContents);
 
         // File file = new File("objects/" + fileName);
-        folder = new File("Tree-Objects");
+        folder = new File("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects");
         folder.mkdir();
-        treeDoc = new File("./Tree-Objects/Tree");
+        treeDoc = new File("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/Tree");
         PrintWriter pw = new PrintWriter(treeDoc);
 
     }
