@@ -92,4 +92,43 @@ public class Tree {
     public void generateBlob() throws Exception {
         Blob blob = new Blob(fileName);
     }
+
+    public String addDirectory(String dirPath) {
+
+        File folder = new File(dirPath);
+
+        // creates text as if in tree file
+        String str = traverseDirectory(folder);
+
+        return Blob.writeHashString(str);
+    }
+
+    // recursion time
+    String traverseDirectory(File folder) {
+
+        StringBuilder sb = new StringBuilder("");
+
+        for (File f : folder.listFiles()) {
+            if (f.isDirectory()) {
+
+                sb.append(traverseDirectory(f));
+            } else {
+                sb.append()
+            }
+        }
+
+        // remove last "\n"
+        sb.setLength(sb.length()-1);;
+
+        return sb.toString();
+    }
+
+    public static void main(String[] args) {
+        StringBuilder sb = new StringBuilder("a\n");
+        sb.setLength(sb.length() - 1);
+        String s = sb.toString();
+        String h = Blob.writeHashString(s);
+        System.out.println(s);
+    }
+
 }

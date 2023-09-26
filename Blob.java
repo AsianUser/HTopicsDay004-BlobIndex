@@ -65,7 +65,7 @@ public class Blob {
         pw.close();
     }
 
-    private String writeHashString(String input) {
+    static String writeHashString(String input) {
         try {
             // Create a MessageDigest instance for SHA-1
             MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
