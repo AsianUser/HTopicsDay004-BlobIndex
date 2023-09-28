@@ -99,7 +99,7 @@ public class Blob {
         }
     }
 
-    private String readFile(File file) throws IOException {
+    static String readFile(File file) throws IOException {
         StringBuilder sb = new StringBuilder();
         BufferedReader br = new BufferedReader(new FileReader(file));
         String line;

@@ -14,6 +14,8 @@ public class Tree {
     String fileName;
     String combinedContents = "";
 
+    String directoryHash;
+
     public Tree() throws NoSuchAlgorithmException {
         for (String entry : entries) {
             combinedContents += entry + "\n";
@@ -93,18 +95,23 @@ public class Tree {
         Blob blob = new Blob(fileName);
     }
 
-    public String addDirectory(String dirPath) {
+    public String addDirectory(String dirPath) throws Exception {
 
         File folder = new File(dirPath);
 
         // creates text as if in tree file
         String str = traverseDirectory(folder);
 
-        return Blob.writeHashString(str);
+        directoryHash = Blob.writeHashString(str);
+
+        return directoryHash;
     }
 
     // recursion time
-    String traverseDirectory(File folder) {
+    String traverseDirectory(File folder) throws Exception {
+
+        if (!folder.exists())
+            throw new Exception("InvalidDirectoryPath");
 
         StringBuilder sb = new StringBuilder("");
 
@@ -113,14 +120,18 @@ public class Tree {
 
                 sb.append(traverseDirectory(f));
             } else {
-                sb.append()
+                sb.append("blob : " + Blob.writeHashString(Blob.readFile(f)) + " : " + f.getName());
             }
         }
 
         // remove last "\n"
-        sb.setLength(sb.length()-1);;
+        sb.setLength(sb.length() - 1);
 
-        return sb.toString();
+        return "tree : " + Blob.writeHashString(sb.toString()) + " : " + folder.getName();
+    }
+
+    public String getDirectoryHash() {
+        return directoryHash;
     }
 
     public static void main(String[] args) {
