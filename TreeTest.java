@@ -47,4 +47,8 @@ public class TreeTest {
         File blobFile = new File("objects/" + expectedBlobHash);
         assertTrue(blobFile.exists());
     }
+
+    @Test
+    public void 
+
 }
