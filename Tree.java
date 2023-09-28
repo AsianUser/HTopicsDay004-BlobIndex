@@ -17,10 +17,19 @@ public class Tree {
     String directoryHash;
 
     public Tree() throws NoSuchAlgorithmException {
+        // for (String entry : entries) {
+        // combinedContents += entry + "\n";
+        // }
+        // fileName = generateSHA(combinedContents);
+        // File file = new File("objects/" + fileName);
+    }
+
+    // not sure what this is meant to accomplish
+    public void save() {
         for (String entry : entries) {
             combinedContents += entry + "\n";
         }
-        fileName = generateSHA(combinedContents);
+        fileName = Blob.writeHashString(combinedContents);
         File file = new File("objects/" + fileName);
     }
 
@@ -108,7 +117,7 @@ public class Tree {
     }
 
     // recursion time
-    String traverseDirectory(File folder) throws Exception {
+    private String traverseDirectory(File folder) throws Exception {
 
         if (!folder.exists())
             throw new Exception("InvalidDirectoryPath");
@@ -116,6 +125,11 @@ public class Tree {
         StringBuilder sb = new StringBuilder("");
 
         for (File f : folder.listFiles()) {
+            // if not empyt add new line
+            if (!sb.isEmpty()) {
+                sb.append("\n");
+            }
+
             if (f.isDirectory()) {
 
                 sb.append(traverseDirectory(f));
