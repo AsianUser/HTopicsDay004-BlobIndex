@@ -104,6 +104,14 @@ public class Tree {
         Blob blob = new Blob(fileName);
     }
 
+    // only for testing purposes
+    String preHashDirectory;
+    String testString;
+
+    public String getPreHashDirectory() {
+        return preHashDirectory;
+    }
+
     public String addDirectory(String dirPath) throws Exception {
 
         File folder = new File(dirPath);
@@ -112,6 +120,9 @@ public class Tree {
         String str = traverseDirectory(folder);
 
         directoryHash = Blob.writeHashString(str);
+
+        // testing purposes only:
+        preHashDirectory = str;
 
         return directoryHash;
     }
@@ -122,38 +133,49 @@ public class Tree {
         if (!folder.exists())
             throw new Exception("InvalidDirectoryPath");
 
+        // System.out.println(folder.getPath());
+
         StringBuilder sb = new StringBuilder("");
 
         for (File f : folder.listFiles()) {
-            // if not empyt add new line
-            if (!sb.isEmpty()) {
-                sb.append("\n");
-            }
+            // System.out.println(f.getAbsolutePath());
 
             if (f.isDirectory()) {
-
-                sb.append(traverseDirectory(f));
+                // System.out.println("isDirectory");
+                System.out.println(f.getName() + " " + traverseDirectory(f));
+                sb.append(traverseDirectory(f) + "\n");
             } else {
-                sb.append("blob : " + Blob.writeHashString(Blob.readFile(f)) + " : " + f.getName());
+                // System.out.println("not directory");
+                System.out.println("blob : " + Blob.writeHashString(Blob.readFile(f)) + " : "
+                        + f.getName() + "\n");
+                sb.append("blob : " + Blob.writeHashString(Blob.readFile(f)) + " : " + f.getName() + "\n");
             }
         }
 
         // remove last "\n"
-        sb.setLength(sb.length() - 1);
+        if (sb.length() > 1)
+            sb.setLength(sb.length() - 1);
 
-        return "tree : " + Blob.writeHashString(sb.toString()) + " : " + folder.getName();
+        testString = sb.toString();
+
+        // return sb.toString();
+        // System.out.println("/n------------/n" + sb.toString());
+
+        String returnStr = "tree : " + Blob.writeHashString(sb.toString()) + " : " +
+                folder.getName();
+
+        return returnStr;
     }
 
     public String getDirectoryHash() {
         return directoryHash;
     }
 
-    public static void main(String[] args) {
-        StringBuilder sb = new StringBuilder("a\n");
-        sb.setLength(sb.length() - 1);
-        String s = sb.toString();
-        String h = Blob.writeHashString(s);
-        System.out.println(s);
+    public static void main(String[] args) throws Exception {
+        Tree tree = new Tree();
+        System.out.println(tree.addDirectory("advancedTest"));
+        System.out.println("\n\n" + tree.getPreHashDirectory());
+
     }
 
 }
