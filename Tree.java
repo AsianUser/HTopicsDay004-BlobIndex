@@ -1,72 +1,150 @@
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.security.*;
 
 public class Tree {
     private List<String> entries;
     String fileName;
     String combinedContents = "";
+    File folder;
+    File treeDoc;
 
-    String directoryHash;
 
-    public Tree() throws NoSuchAlgorithmException {
+    HashMap<String, String> blobs = new HashMap();
+
+    public Tree() throws NoSuchAlgorithmException, FileNotFoundException {
+
+//     String directoryHash;
+
+//     public Tree() throws NoSuchAlgorithmException {
+
         // for (String entry : entries) {
         // combinedContents += entry + "\n";
         // }
         // fileName = generateSHA(combinedContents);
+
+
         // File file = new File("objects/" + fileName);
+        folder = new File("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects");
+        folder.mkdir();
+        treeDoc = new File("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/Tree");
+        PrintWriter pw = new PrintWriter(treeDoc);
+
     }
 
-    // not sure what this is meant to accomplish
-    public void save() {
-        for (String entry : entries) {
-            combinedContents += entry + "\n";
-        }
-        fileName = Blob.writeHashString(combinedContents);
-        File file = new File("objects/" + fileName);
+    // used my code to fix
+
+    public void add(String name) throws Exception {
+        Blob blob = new Blob("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/" + name);
+
+        String contents = blob.fileContent;
+        blobs.put(name, Commit.generateSHA(contents));
+        printBlobs();
+
+//         // File file = new File("objects/" + fileName);
+//     }
+
+//     // not sure what this is meant to accomplish
+//     public void save() {
+//         for (String entry : entries) {
+//             combinedContents += entry + "\n";
+//         }
+//         fileName = Blob.writeHashString(combinedContents);
+//         File file = new File("objects/" + fileName);
+
     }
 
-    public void add(String entry) throws NoSuchAlgorithmException, IOException {
-        entries.add(entry);
-        combinedContents += entry;
-        fileName = generateSHA(combinedContents);
-        writeToFile(fileName);
+    public void remove(String fileName) {
+        blobs.remove(fileName);
+        printBlobs();
+
     }
 
-    public void remove(String name) throws NoSuchAlgorithmException, IOException {
-        entries.removeIf(entry -> {
-            String[] parts = entry.split(" : ");
-            if (parts.length >= 3) {
-                String typeOfFile = parts[0];
-                String shaOfFile = parts[1];
-                String optionalFileName = parts[2];
-                return shaOfFile.equals(name) || optionalFileName.equals(name);
+    public void printBlobs() {
+        try {
+            PrintWriter pw = new PrintWriter(
+                    "/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/Tree");
+
+            String s = "";
+            for (HashMap.Entry<String, String> entry : blobs.entrySet()) {
+                s += entry.getKey() + " : " + entry.getValue() + "\n";
             }
-            return false;
-        });
-        for (String entry : entries) {
-            combinedContents += entry + "\n";
+
+            pw.print(s);
+            pw.close();
+
+        } catch (Exception e) {
+
         }
-        fileName = generateSHA(combinedContents);
-        writeToFile(fileName);
+
     }
+
+    // public void add(String entry) throws NoSuchAlgorithmException, IOException {
+    // File file = new File("/Users/lilbarbar/Desktop/Honors
+    // Topics/Bens-Amazing-Git/Tree-Objects/" + entry);
+    // // entries.add(entry);
+    // combinedContents += entry + "\n";
+    // // fileName = generateSHA(combinedContents);
+    // writeToFile("Tree");
+    // }
+
+    // public void remove(String name) throws NoSuchAlgorithmException, IOException
+    // {
+    // entries.removeIf(entry -> {
+    // String[] parts = entry.split(" : ");
+    // if (parts.length >= 3) {
+    // String typeOfFile = parts[0];
+    // String shaOfFile = parts[1];
+    // String optionalFileName = parts[2];
+    // return shaOfFile.equals(name) || optionalFileName.equals(name);
+    // }
+    // return false;
+    // });
+    // for (String entry : entries) {
+    // combinedContents += entry + "\n";
+    // }
+    // fileName = generateSHA(combinedContents);
+    // writeToFile(fileName);
+    // }
 
     public void writeToFile(String fileName) throws IOException, NoSuchAlgorithmException {
         String combinedContents = "";
         for (String entry : entries) {
             combinedContents += entry + "\n";
         }
-        File file = new File("objects/" + fileName);
+        File file = new File("Tree-Objects/" + fileName);
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, false))) {
             writer.write(combinedContents);
         }
+    }
+
+    public String allConents() throws IOException { // gotten from Chris' code when you assigned him as partner eaerlier
+
+        StringBuilder record = new StringBuilder("");
+
+        // FileReader fr = new FileReader ()
+        BufferedReader text = new BufferedReader(
+                new FileReader("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/Tree"));
+
+        while (text.ready()) {
+            record.append((char) text.read());
+        }
+
+        text.close();
+        return record.toString();
     }
 
     public static String generateSHA(String input) throws NoSuchAlgorithmException {
