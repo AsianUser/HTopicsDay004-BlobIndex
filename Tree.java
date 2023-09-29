@@ -22,26 +22,26 @@ public class Tree {
     File folder;
     File treeDoc;
 
-
-    HashMap<String, String> blobs = new HashMap();
+    HashMap<String, String> blobs = new HashMap<String, String>();
 
     public Tree() throws NoSuchAlgorithmException, FileNotFoundException {
 
-//     String directoryHash;
+        // String directoryHash;
 
-//     public Tree() throws NoSuchAlgorithmException {
+        // public Tree() throws NoSuchAlgorithmException {
 
         // for (String entry : entries) {
         // combinedContents += entry + "\n";
         // }
         // fileName = generateSHA(combinedContents);
 
-
         // File file = new File("objects/" + fileName);
-        folder = new File("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects");
+        folder = new File("./Tree-Objects");
         folder.mkdir();
-        treeDoc = new File("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/Tree");
+        treeDoc = new File("./Tree-Objects/Tree");
         PrintWriter pw = new PrintWriter(treeDoc);
+
+        pw.close();
 
     }
 
@@ -50,20 +50,20 @@ public class Tree {
     public void add(String name) throws Exception {
         Blob blob = new Blob("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/" + name);
 
-        String contents = blob.fileContent;
+        String contents = blob.getFileContent();
         blobs.put(name, Commit.generateSHA(contents));
         printBlobs();
 
-//         // File file = new File("objects/" + fileName);
-//     }
+        // // File file = new File("objects/" + fileName);
+        // }
 
-//     // not sure what this is meant to accomplish
-//     public void save() {
-//         for (String entry : entries) {
-//             combinedContents += entry + "\n";
-//         }
-//         fileName = Blob.writeHashString(combinedContents);
-//         File file = new File("objects/" + fileName);
+        // // not sure what this is meant to accomplish
+        // public void save() {
+        // for (String entry : entries) {
+        // combinedContents += entry + "\n";
+        // }
+        // fileName = Blob.writeHashString(combinedContents);
+        // File file = new File("objects/" + fileName);
 
     }
 
@@ -197,10 +197,7 @@ public class Tree {
         // creates text as if in tree file
         String str = traverseDirectory(folder);
 
-        directoryHash = Blob.writeHashString(str);
-
-        // testing purposes only:
-        preHashDirectory = str;
+        String directoryHash = Blob.writeHashString(str);
 
         return directoryHash;
     }
@@ -243,10 +240,6 @@ public class Tree {
                 folder.getName();
 
         return returnStr;
-    }
-
-    public String getDirectoryHash() {
-        return directoryHash;
     }
 
     public static void main(String[] args) throws Exception {

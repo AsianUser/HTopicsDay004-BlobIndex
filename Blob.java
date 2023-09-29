@@ -33,17 +33,14 @@ public class Blob {
     // file name ver
     public Blob(String fileName) throws Exception {
 
-
         // hash
         // hashFileString = hash(new File(filePath));
-//         File originalFile = new File(fileName);
-
+        File originalFile = new File(fileName);
 
         fileName = originalFile.getName();
         fileContents = readFile(originalFile);
         hashFileString = writeHashString(fileContents);
         folderPath = "objects/";
-
 
         // write text to file
         // copyData(new File(filePath), blob);
@@ -57,7 +54,6 @@ public class Blob {
             file.createNewFile();
 
         copyData(file);
-
 
     }
 
