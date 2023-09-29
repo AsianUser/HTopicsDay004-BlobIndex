@@ -22,13 +22,20 @@ public class Tree {
     File folder;
     File treeDoc;
 
+
     HashMap<String, String> blobs = new HashMap();
 
     public Tree() throws NoSuchAlgorithmException, FileNotFoundException {
+
+//     String directoryHash;
+
+//     public Tree() throws NoSuchAlgorithmException {
+
         // for (String entry : entries) {
         // combinedContents += entry + "\n";
         // }
         // fileName = generateSHA(combinedContents);
+
 
         // File file = new File("objects/" + fileName);
         folder = new File("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects");
@@ -46,6 +53,18 @@ public class Tree {
         String contents = blob.fileContent;
         blobs.put(name, Commit.generateSHA(contents));
         printBlobs();
+
+//         // File file = new File("objects/" + fileName);
+//     }
+
+//     // not sure what this is meant to accomplish
+//     public void save() {
+//         for (String entry : entries) {
+//             combinedContents += entry + "\n";
+//         }
+//         fileName = Blob.writeHashString(combinedContents);
+//         File file = new File("objects/" + fileName);
+
     }
 
     public void remove(String fileName) {
@@ -162,4 +181,79 @@ public class Tree {
     public void generateBlob() throws Exception {
         Blob blob = new Blob(fileName);
     }
+
+    // only for testing purposes
+    String preHashDirectory;
+    String testString;
+
+    public String getPreHashDirectory() {
+        return preHashDirectory;
+    }
+
+    public String addDirectory(String dirPath) throws Exception {
+
+        File folder = new File(dirPath);
+
+        // creates text as if in tree file
+        String str = traverseDirectory(folder);
+
+        directoryHash = Blob.writeHashString(str);
+
+        // testing purposes only:
+        preHashDirectory = str;
+
+        return directoryHash;
+    }
+
+    // recursion time
+    private String traverseDirectory(File folder) throws Exception {
+
+        if (!folder.exists())
+            throw new Exception("InvalidDirectoryPath");
+
+        // System.out.println(folder.getPath());
+
+        StringBuilder sb = new StringBuilder("");
+
+        for (File f : folder.listFiles()) {
+            // System.out.println(f.getAbsolutePath());
+
+            if (f.isDirectory()) {
+                // System.out.println("isDirectory");
+                System.out.println(f.getName() + " " + traverseDirectory(f));
+                sb.append(traverseDirectory(f) + "\n");
+            } else {
+                // System.out.println("not directory");
+                System.out.println("blob : " + Blob.writeHashString(Blob.readFile(f)) + " : "
+                        + f.getName() + "\n");
+                sb.append("blob : " + Blob.writeHashString(Blob.readFile(f)) + " : " + f.getName() + "\n");
+            }
+        }
+
+        // remove last "\n"
+        if (sb.length() > 1)
+            sb.setLength(sb.length() - 1);
+
+        testString = sb.toString();
+
+        // return sb.toString();
+        // System.out.println("/n------------/n" + sb.toString());
+
+        String returnStr = "tree : " + Blob.writeHashString(sb.toString()) + " : " +
+                folder.getName();
+
+        return returnStr;
+    }
+
+    public String getDirectoryHash() {
+        return directoryHash;
+    }
+
+    public static void main(String[] args) throws Exception {
+        Tree tree = new Tree();
+        System.out.println(tree.addDirectory("advancedTest"));
+        System.out.println("\n\n" + tree.getPreHashDirectory());
+
+    }
+
 }
