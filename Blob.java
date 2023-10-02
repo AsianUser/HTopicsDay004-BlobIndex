@@ -11,12 +11,15 @@ public class Blob {
 
     String hashFileString, fileContents, folderPath, fileName;
 
+    // Parameter: File
     public Blob(File originalFile) throws Exception {
+
         fileName = originalFile.getName();
         fileContents = readFile(originalFile);
         hashFileString = writeHashString(fileContents);
         folderPath = "objects/";
 
+        // write text to file
         Path oP = Paths.get(folderPath);
         if (!Files.exists(oP))
             Files.createDirectories(oP);
@@ -30,11 +33,9 @@ public class Blob {
 
     }
 
-    // file name ver
+    // Parameter: String
     public Blob(String fileName) throws Exception {
 
-        // hash
-        // hashFileString = hash(new File(filePath));
         File originalFile = new File(fileName);
 
         fileName = originalFile.getName();
@@ -43,7 +44,6 @@ public class Blob {
         folderPath = "objects/";
 
         // write text to file
-        // copyData(new File(filePath), blob);
         Path oP = Paths.get(folderPath);
         if (!Files.exists(oP))
             Files.createDirectories(oP);

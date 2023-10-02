@@ -48,7 +48,7 @@ public class Tree {
     // used my code to fix
 
     public void add(String name) throws Exception {
-        Blob blob = new Blob("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/" + name);
+        Blob blob = new Blob(name);
 
         String contents = blob.getFileContent();
         blobs.put(name, Commit.generateSHA(contents));
@@ -76,7 +76,7 @@ public class Tree {
     public void printBlobs() {
         try {
             PrintWriter pw = new PrintWriter(
-                    "/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/Tree");
+                    "Tree");
 
             String s = "";
             for (HashMap.Entry<String, String> entry : blobs.entrySet()) {
@@ -93,8 +93,7 @@ public class Tree {
     }
 
     // public void add(String entry) throws NoSuchAlgorithmException, IOException {
-    // File file = new File("/Users/lilbarbar/Desktop/Honors
-    // Topics/Bens-Amazing-Git/Tree-Objects/" + entry);
+    // File file = new File(entry);
     // // entries.add(entry);
     // combinedContents += entry + "\n";
     // // fileName = generateSHA(combinedContents);
@@ -136,8 +135,7 @@ public class Tree {
         StringBuilder record = new StringBuilder("");
 
         // FileReader fr = new FileReader ()
-        BufferedReader text = new BufferedReader(
-                new FileReader("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/Tree"));
+        BufferedReader text = new BufferedReader(new FileReader());
 
         while (text.ready()) {
             record.append((char) text.read());

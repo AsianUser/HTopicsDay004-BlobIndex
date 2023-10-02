@@ -49,7 +49,7 @@ public class CommitTest {
         c.commitFile();
         c.writeFile();
 
-        PrintWriter pw = new PrintWriter("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/Tree");
+        PrintWriter pw = new PrintWriter();
 
         pw.write("UWU SUSSY BAKA");
         pw.close();
@@ -67,8 +67,8 @@ public class CommitTest {
     void testMakeTree() throws Exception {
 
         Tree tree = new Tree();
-        File a = new File("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/Tree");
-        File b = new File("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/");
+        File a = new File();
+        File b = new File();
 
         assertEquals(a.exists(), true);
         assertEquals(b.exists(), true);
@@ -81,7 +81,7 @@ public class CommitTest {
         System.out.println(Commit.getDate());
         Commit com = new Commit("Bo", "Cool!");
 
-        PrintWriter pw = new PrintWriter("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/Tree");
+        PrintWriter pw = new PrintWriter();
         pw.write("lol");
         pw.close();
         com.commitFile();
@@ -89,14 +89,14 @@ public class CommitTest {
 
         System.out.println(com.hashesToString());
 
-        PrintWriter pw2 = new PrintWriter("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/Tree");
+        PrintWriter pw2 = new PrintWriter();
         pw2.write("lol2");
         pw2.close();
         com.commitFile();
         com.writeFile();
         System.out.println(com.hashesToString());
 
-        PrintWriter pw3 = new PrintWriter("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/Tree");
+        PrintWriter pw3 = new PrintWriter();
         pw3.write("lol3");
         pw3.close();
         com.commitFile();
@@ -112,7 +112,7 @@ public class CommitTest {
 
         // recycle earlier code
 
-        assertEquals(new File("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/" + name).exists(),
+        assertEquals(new File(name).exists(),
                 true);
 
     }
@@ -123,7 +123,7 @@ public class CommitTest {
         System.out.println(Commit.getDate());
         Commit com = new Commit("Bo", "Cool!");
 
-        PrintWriter pw = new PrintWriter("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/Tree");
+        PrintWriter pw = new PrintWriter();
         pw.write("lol");
         pw.close();
         com.commitFile();
@@ -131,14 +131,14 @@ public class CommitTest {
 
         System.out.println(com.hashesToString());
 
-        PrintWriter pw2 = new PrintWriter("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/Tree");
+        PrintWriter pw2 = new PrintWriter();
         pw2.write("lol2");
         pw2.close();
         com.commitFile();
         com.writeFile();
         System.out.println(com.hashesToString());
 
-        PrintWriter pw3 = new PrintWriter("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/Tree");
+        PrintWriter pw3 = new PrintWriter();
         pw3.write("lol3");
         pw3.close();
         com.commitFile();
@@ -151,7 +151,7 @@ public class CommitTest {
 
         // recycle earlier code
 
-        assertEquals(new File("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/" + name).exists(),
+        assertEquals(new File(name).exists(),
                 true);
 
     }
@@ -164,7 +164,7 @@ public class CommitTest {
         c.writeFile();
 
         File file = new File(
-                "/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/fa1e5b255a5f4b06afca4f2debcbabe7bcfd2b3b");
+                   Tree-Objects/fa1e5b255a5f4b06afca4f2debcbabe7bcfd2b3b");
 
         assertEquals(file.exists(), true);
 
