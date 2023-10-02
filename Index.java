@@ -6,42 +6,20 @@ public class Index {
 
     File indexFile;
     String indexPath; // path to index.txt
-    String objectsFolderPath;
+    String objectsFolderPath = "objects/";
 
     public Index() throws IOException {
-        // ._.
-        // if (isWindows) {
-        // String testFolderPath = "./test";
-
-        // indexFile = new File(testFolderPath, "index");
-        // indexFile.delete();
-        // indexFile.createNewFile();
-
-        // indexPath = indexFile.getPath();
-        // indexFile.createNewFile();
-
-        // // create objects folder
-        // File objectsFolder = new File(testFolderPath, "objects");
-        // objectsFolder.mkdirs();
-        // objectsFolderPath = objectsFolder.getPath();
-        // } else {
-        objectsFolderPath = "./test/objects/";
-
-        Path tP = Paths.get("test");
-        if (!Files.exists(tP))
-            Files.createDirectories(tP);
 
         Path oP = Paths.get(objectsFolderPath);
         if (!Files.exists(oP))
             Files.createDirectories(oP);
 
         // makes index file - if exists, delete then remake
-        indexFile = new File("test", "index");
+        indexFile = new File("index");
         indexFile.delete();
         indexFile.createNewFile();
 
         indexPath = indexFile.getPath();
-        // }
 
     }
 
