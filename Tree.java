@@ -22,6 +22,7 @@ public class Tree {
     File folder;
     File treeDoc;
 
+    // < fileName , fileSha >
     HashMap<String, String> blobs = new HashMap<String, String>();
 
     public Tree() throws NoSuchAlgorithmException, FileNotFoundException {
@@ -62,7 +63,7 @@ public class Tree {
         // for (String entry : entries) {
         // combinedContents += entry + "\n";
         // }
-        // fileName = Blob.writeHashString(combinedContents);
+        // fileName = FileUtils.writeHashString(combinedContents);
         // File file = new File("objects/" + fileName);
 
     }
@@ -135,7 +136,7 @@ public class Tree {
         StringBuilder record = new StringBuilder("");
 
         // FileReader fr = new FileReader ()
-        BufferedReader text = new BufferedReader(new FileReader());
+        BufferedReader text = new BufferedReader(new FileReader("Tree"));
 
         while (text.ready()) {
             record.append((char) text.read());
@@ -195,7 +196,7 @@ public class Tree {
         // creates text as if in tree file
         String str = traverseDirectory(folder);
 
-        String directoryHash = Blob.writeHashString(str);
+        String directoryHash = FileUtils.writeHashString(str);
 
         return directoryHash;
     }
@@ -219,9 +220,9 @@ public class Tree {
                 sb.append(traverseDirectory(f) + "\n");
             } else {
                 // System.out.println("not directory");
-                System.out.println("blob : " + Blob.writeHashString(Blob.readFile(f)) + " : "
+                System.out.println("blob : " + FileUtils.writeHashString(Blob.readFile(f)) + " : "
                         + f.getName() + "\n");
-                sb.append("blob : " + Blob.writeHashString(Blob.readFile(f)) + " : " + f.getName() + "\n");
+                sb.append("blob : " + FileUtils.writeHashString(Blob.readFile(f)) + " : " + f.getName() + "\n");
             }
         }
 
@@ -234,7 +235,7 @@ public class Tree {
         // return sb.toString();
         // System.out.println("/n------------/n" + sb.toString());
 
-        String returnStr = "tree : " + Blob.writeHashString(sb.toString()) + " : " +
+        String returnStr = "tree : " + FileUtils.writeHashString(sb.toString()) + " : " +
                 folder.getName();
 
         return returnStr;
