@@ -87,7 +87,7 @@ public class Commit {
 
     public void writeFile() throws FileNotFoundException {
         PrintWriter pw = new PrintWriter(
-                "/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/" + currentSHA);
+                currentSHA);
 
         pw.print("Current: " + currentSHA + "\n");
         if (prevSHA != null) {

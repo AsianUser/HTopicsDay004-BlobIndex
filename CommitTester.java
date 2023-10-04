@@ -7,7 +7,7 @@ public class CommitTester {
         Commit com = new Commit("Bo", "Cool!");
         com.commitFile();
         com.writeFile();
-        PrintWriter pw = new PrintWriter("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/Tree");
+        PrintWriter pw = new PrintWriter();
         pw.write("lol");
         pw.close();
         com.commitFile();
@@ -15,14 +15,14 @@ public class CommitTester {
 
         System.out.println(com.hashesToString());
 
-        PrintWriter pw2 = new PrintWriter("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/Tree");
+        PrintWriter pw2 = new PrintWriter();
         pw2.write("lol2");
         pw2.close();
         com.commitFile();
         com.writeFile();
         System.out.println(com.hashesToString());
 
-        PrintWriter pw3 = new PrintWriter("/Users/lilbarbar/Desktop/Honors Topics/Bens-Amazing-Git/Tree-Objects/Tree");
+        PrintWriter pw3 = new PrintWriter();
         pw3.write("lol3");
         pw3.close();
         com.commitFile();
@@ -50,8 +50,7 @@ public class CommitTester {
         // c.writeFile();
         // System.out.println(c.hashesToString());
 
-        // PrintWriter pw5 = new PrintWriter("/Users/lilbarbar/Desktop/Honors
-        // Topics/Bens-Amazing-Git/Tree-Objects/Tree");
+        // PrintWriter pw5 = new PrintWriter("");
         // pw5.write("hehe");
         // pw5.close();
         // c.commitFile();
