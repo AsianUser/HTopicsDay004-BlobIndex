@@ -1,8 +1,14 @@
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.io.*;
 import java.security.NoSuchAlgorithmException;
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Assertions.*;
 
 public class TreeTest {
     private Tree tree;
@@ -10,6 +16,43 @@ public class TreeTest {
     @BeforeEach
     public void setUp() throws Exception {
         tree = new Tree();
+    }
+
+    // LOPEZ Code
+    // a good unit test makes sure tha tmy constructor works properly
+
+    // gen a tree file
+
+    @Test
+    @DisplayName("tet tree consturctor to make tree file")
+    public void testTreeConstructor() throws Exception {
+        Tree tree = new Tree();
+
+        File treeFile = new File("tree");
+        assertTrue(treeFile.exists());
+
+    }
+
+    @Test
+    @DisplayName("Test if can write to tree")
+    public void testWriteToTree() throws Exception {
+        Tree tree = new Tree();
+
+        File treeFile = new File("tree");
+        assertTrue(treeFile.exists());
+
+        // create bunch of files
+        File testFile = new File("test.txt");
+        testFile.createNewFile();
+
+        String fileContents = FileUtils.readFile(testFile);
+        String fileSHA = FileUtils.hash(fileContents);
+
+        String newLine = "blob : " + fileSHA + " : " + testFile.getName();
+        tree.addLine(newLine);
+
+        // tree.add();
+        assertEquals(newLine, tree.allConents());
     }
 
     @Test
@@ -73,14 +116,14 @@ public class TreeTest {
 
         // run test
 
-        String expectedText = "blob : " + FileUtils.writeHashString("the sha of this is ... ?") + " : examplefile1\n"
+        String expectedText = "blob : " + FileUtils.hash("the sha of this is ... ?") + " : examplefile1\n"
                 + "blob : "
-                + FileUtils.writeHashString("zomg wut are u doing. LAWL?") + " : examplefile2\n" + "blob : "
-                + FileUtils.writeHashString("LOL please dont read this.  Good job being thorough tho!")
+                + FileUtils.hash("zomg wut are u doing. LAWL?") + " : examplefile2\n" + "blob : "
+                + FileUtils.hash("LOL please dont read this.  Good job being thorough tho!")
                 + " : examplefile3";
 
-        String expectedTree = "tree : " + FileUtils.writeHashString(expectedText) + " : test1";
-        String expectedHash = FileUtils.writeHashString(expectedTree);
+        String expectedTree = "tree : " + FileUtils.hash(expectedText) + " : test1";
+        String expectedHash = FileUtils.hash(expectedTree);
 
         // tree.addDirectory("test1");
         // assertEquals(tree.getPreHashDirectory(), expectedTree);
@@ -137,8 +180,8 @@ public class TreeTest {
 
         String expectedText = "blob : 6cecd98f685b1c9bfce96f2bbf3f8f381bcc717e : examplefile1.txt\nblob : 7fb1c700700603eef612e0ffedff5e1fa5af50b6 : examplefile2.txt\nblob : 7588059d9f514dcf29aec96e4b3aff9a467f7172 : examplefile3.txt\ntree : da39a3ee5e6b4b0d3255bfef95601890afd80709 : test3\ntree : 032544217e9609e54d911df3963bdefc53b3fdda : test5";
 
-        String expectedTree = "tree : " + FileUtils.writeHashString(expectedText) + " : advancedTest";
-        String expectedHash = FileUtils.writeHashString(expectedTree);
+        String expectedTree = "tree : " + FileUtils.hash(expectedText) + " : advancedTest";
+        String expectedHash = FileUtils.hash(expectedTree);
 
         tree.addDirectory("advancedTest");
         assertEquals(tree.testString, expectedText);

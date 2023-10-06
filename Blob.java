@@ -13,7 +13,7 @@ public class Blob {
 
         fileName = originalFile.getName();
         fileContents = readFile(originalFile);
-        hashFileString = FileUtils.writeHashString(fileContents);
+        hashFileString = FileUtils.hash(fileContents);
         folderPath = "objects/";
 
         // write text to file
@@ -37,7 +37,7 @@ public class Blob {
 
         fileName = originalFile.getName();
         fileContents = readFile(originalFile);
-        hashFileString = FileUtils.writeHashString(fileContents);
+        hashFileString = FileUtils.hash(fileContents);
         folderPath = "objects/";
 
         // write text to file

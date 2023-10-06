@@ -22,10 +22,17 @@ public class Tree {
     File folder;
     File treeDoc;
 
+    public Tree() throws Exception {
+        File file = new File("Tree");
+        if (!file.exists()) {
+            file.createNewFile();
+        }
+    }
+
     // < fileName , fileSha >
     HashMap<String, String> blobs = new HashMap<String, String>();
 
-    public Tree() throws NoSuchAlgorithmException, FileNotFoundException {
+    public Tree(String placeHolderSoNoErrorPlsDeleteLater) throws Exception {
 
         // String directoryHash;
 
@@ -46,15 +53,55 @@ public class Tree {
 
     }
 
-    // used my code to fix
+    public void addLine(String line) throws Exception {
+        FileWriter fw = new FileWriter("Tree", true);
+        fw.write(line);
+        fw.close();
+    }
 
-    public void add(String name) throws Exception {
-        Blob blob = new Blob(name);
+    /**
+     * The LOPEZ Suggestion
+     * 
+     * add()
+     * accept either a filename or a tree hash as a param
+     * 
+     * "tree : HASH : folderName"
+     * 
+     */
 
-        String contents = blob.getFileContent();
-        blobs.put(name, Commit.generateSHA(contents));
-        printBlobs();
+    public void add(String fileName) throws Exception {
 
+        File fileToAdd = new File(fileName);
+        // check if taking in file or smth else
+        if (!fileToAdd.exists()) {
+            String isTree = fileName.substring(0, 6);
+            if (isTree.equals("tree : ")) {
+                throw new FileNotFoundException("invalid add file");
+            }
+        }
+
+        if (fileToAdd.exists()) { // is file
+            // write to Tree File
+            String fileContent = FileUtils.readFile(fileToAdd);
+            String hashOfFile = FileUtils.hash(fileContent);
+
+            String newEntryForTree = "blob : " + hashOfFile + " : " + fileName;
+
+            // write this to Tree
+            FileUtils.writeFile(newEntryForTree, "Tree", true);
+
+        } else { // is directory
+
+        }
+
+        // -----------------------------------------------------------------
+
+        // Blob blob = new Blob(name);
+
+        // String contents = blob.getFileContent();
+        // blobs.put(name, Commit.generateSHA(contents));
+        // printBlobs();
+        // -----------------------------------------
         // // File file = new File("objects/" + fileName);
         // }
 
@@ -63,7 +110,7 @@ public class Tree {
         // for (String entry : entries) {
         // combinedContents += entry + "\n";
         // }
-        // fileName = FileUtils.writeHashString(combinedContents);
+        // fileName = FileUtils.hash(combinedContents);
         // File file = new File("objects/" + fileName);
 
     }
@@ -129,6 +176,7 @@ public class Tree {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, false))) {
             writer.write(combinedContents);
         }
+
     }
 
     public String allConents() throws IOException { // gotten from Chris' code when you assigned him as partner eaerlier
@@ -177,6 +225,16 @@ public class Tree {
         }
     }
 
+    /**
+     * 
+     * expected behavior / Tester example
+     * add file 1
+     * add file 2
+     * remove file 1
+     * generateBlob ()
+     * 
+     */
+
     public void generateBlob() throws Exception {
         Blob blob = new Blob(fileName);
     }
@@ -196,7 +254,7 @@ public class Tree {
         // creates text as if in tree file
         String str = traverseDirectory(folder);
 
-        String directoryHash = FileUtils.writeHashString(str);
+        String directoryHash = FileUtils.hash(str);
 
         return directoryHash;
     }
@@ -220,9 +278,9 @@ public class Tree {
                 sb.append(traverseDirectory(f) + "\n");
             } else {
                 // System.out.println("not directory");
-                System.out.println("blob : " + FileUtils.writeHashString(Blob.readFile(f)) + " : "
+                System.out.println("blob : " + FileUtils.hash(Blob.readFile(f)) + " : "
                         + f.getName() + "\n");
-                sb.append("blob : " + FileUtils.writeHashString(Blob.readFile(f)) + " : " + f.getName() + "\n");
+                sb.append("blob : " + FileUtils.hash(Blob.readFile(f)) + " : " + f.getName() + "\n");
             }
         }
 
@@ -235,7 +293,7 @@ public class Tree {
         // return sb.toString();
         // System.out.println("/n------------/n" + sb.toString());
 
-        String returnStr = "tree : " + FileUtils.writeHashString(sb.toString()) + " : " +
+        String returnStr = "tree : " + FileUtils.hash(sb.toString()) + " : " +
                 folder.getName();
 
         return returnStr;
