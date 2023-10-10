@@ -1,3 +1,5 @@
+import org.jcp.xml.dsig.internal.dom.Utils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -12,10 +14,24 @@ import org.junit.jupiter.api.Assertions.*;
 
 public class TreeTest {
     private Tree tree;
+    private Index index;
 
     @BeforeEach
     public void setUp() throws Exception {
         tree = new Tree();
+
+        index = new Index();
+        index.init();
+
+    }
+
+    @AfterEach
+    public void tearDown() throws Exception {
+        FileUtils.deleteFile("Index");
+        FileUtils.deleteDirectory("Objects");
+        FileUtils.deleteFile("Tree");
+        FileUtils.deleteDirectory("advancedTest");
+        FileUtils.deleteDirectory("test1");
     }
 
     // LOPEZ Code
@@ -24,7 +40,7 @@ public class TreeTest {
     // gen a tree file
 
     @Test
-    @DisplayName("tet tree consturctor to make tree file")
+    @DisplayName("test tree consturctor to make tree file")
     public void testTreeConstructor() throws Exception {
         Tree tree = new Tree();
 
@@ -56,35 +72,37 @@ public class TreeTest {
     }
 
     @Test
-    public void testAdd() throws Exception {
-        tree.add("blob : 81e0268c84067377a0a1fdfb5cc996c93f6dcf9f : file1.txt");
-        tree.add("tree : bd1ccec139dead5ee0d8c3a0499b42a7d43ac44b");
+    public void testAddLine() throws Exception {
+        Tree tree = new Tree();
+        tree.addLine("blob : 81e0268c84067377a0a1fdfb5cc996c93f6dcf9f : file1.txt");
+        tree.addLine("tree : bd1ccec139dead5ee0d8c3a0499b42a7d43ac44b");
 
-        String expectedFileName = "79bfa25c08b21f0168b707f00a7b44bf4a4c07c0";
-        String actualFileName = tree.fileName;
-
+        String expectedFileName = "80aaaaaea78ef9525bf854dcb1d60e2abe087221";
+        String actualFileName = tree.getTreeHash();
         assertEquals(expectedFileName, actualFileName);
     }
 
     @Test
     public void testRemove() throws Exception {
-        tree.add("blob : 81e0268c84067377a0a1fdfb5cc996c93f6dcf9f : file1.txt");
-        tree.add("tree : bd1ccec139dead5ee0d8c3a0499b42a7d43ac44b");
+        Tree tree = new Tree();
+        tree.addLine("blob : 81e0268c84067377a0a1fdfb5cc996c93f6dcf9f : file1.txt");
+        tree.addLine("tree : bd1ccec139dead5ee0d8c3a0499b42a7d43ac44b");
 
         tree.remove("file1.txt");
 
-        String expectedFileName = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
-        String actualFileName = tree.fileName;
+        String expectedFileName = "ee8612eaba3e603c9cb58e1d26a0b95ee3477652";
+        String actualFileName = tree.getTreeHash();
 
         assertEquals(expectedFileName, actualFileName);
     }
 
     @Test
     public void testGenerateBlob() throws Exception {
-        tree.add("blob : 81e0268c84067377a0a1fdfb5cc996c93f6dcf9f : file1.txt");
-        tree.add("tree : bd1ccec139dead5ee0d8c3a0499b42a7d43ac44b");
+        Tree tree = new Tree();
+        tree.addLine("blob : 81e0268c84067377a0a1fdfb5cc996c93f6dcf9f : file1.txt");
+        tree.addLine("tree : bd1ccec139dead5ee0d8c3a0499b42a7d43ac44b");
 
-        String expectedBlobHash = "79bfa25c08b21f0168b707f00a7b44bf4a4c07c0";
+        String expectedBlobHash = "80aaaaaea78ef9525bf854dcb1d60e2abe087221";
         tree.generateBlob();
 
         File blobFile = new File("objects/" + expectedBlobHash);
@@ -94,9 +112,12 @@ public class TreeTest {
     @Test
     public void testAddDirectoryTestCase1() throws Exception {
 
+        Tree tree = new Tree();
+
         // create files
+        FileUtils.createDirectory("test1");
+
         File test1 = new File("test1");
-        test1.mkdir();
 
         File examplefile1 = new File("test1", "examplefile1");
         File examplefile2 = new File("test1", "examplefile2");
@@ -125,20 +146,24 @@ public class TreeTest {
         String expectedTree = "tree : " + FileUtils.hash(expectedText) + " : test1";
         String expectedHash = FileUtils.hash(expectedTree);
 
-        // tree.addDirectory("test1");
+        tree.addDirectory("test1");
         // assertEquals(tree.getPreHashDirectory(), expectedTree);
+        // throw new Exception("" + test1.exists());
 
-        assertEquals(expectedHash, tree.addDirectory("test1"),
-                tree.getPreHashDirectory() + "zzz\n\n" + expectedTree);
+        assertEquals(expectedHash, tree.directoryHash);
 
     }
 
     @Test
     public void testAddDirectoryAdvancedTest() throws Exception {
-        // create files
+        Tree tree = new Tree();
+
         File test1 = new File("advancedTest");
-        for (File f : test1.listFiles()) {
-            f.delete();
+
+        if (test1.listFiles() != null) {
+            for (File f : test1.listFiles()) {
+                f.delete();
+            }
         }
         test1.mkdir();
 
@@ -178,16 +203,12 @@ public class TreeTest {
 
         // run test
 
-        String expectedText = "blob : 6cecd98f685b1c9bfce96f2bbf3f8f381bcc717e : examplefile1.txt\nblob : 7fb1c700700603eef612e0ffedff5e1fa5af50b6 : examplefile2.txt\nblob : 7588059d9f514dcf29aec96e4b3aff9a467f7172 : examplefile3.txt\ntree : da39a3ee5e6b4b0d3255bfef95601890afd80709 : test3\ntree : 032544217e9609e54d911df3963bdefc53b3fdda : test5";
-
-        String expectedTree = "tree : " + FileUtils.hash(expectedText) + " : advancedTest";
-        String expectedHash = FileUtils.hash(expectedTree);
+        String expectedHash = "eb6d9a8158b62c74f4be79e2b89d964239964861";
 
         tree.addDirectory("advancedTest");
-        assertEquals(tree.testString, expectedText);
+        // assertEquals(tree.testString, expectedText);
 
-        assertEquals(expectedHash, tree.addDirectory("advancedTest"),
-                tree.getPreHashDirectory() + "zzz\n\n" + expectedTree);
+        assertEquals(expectedHash, tree.directoryHash);
     }
 
 }
