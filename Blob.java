@@ -12,7 +12,7 @@ public class Blob {
     public Blob(File originalFile) throws Exception {
 
         fileName = originalFile.getName();
-        fileContents = readFile(originalFile);
+        fileContents = FileUtils.readFile(originalFile);
         hashFileString = FileUtils.hash(fileContents);
         folderPath = "objects/";
 
@@ -36,7 +36,7 @@ public class Blob {
         File originalFile = new File(fileName);
 
         fileName = originalFile.getName();
-        fileContents = readFile(originalFile);
+        fileContents = FileUtils.readFile(originalFile);
         hashFileString = FileUtils.hash(fileContents);
         folderPath = "objects/";
 
@@ -69,34 +69,34 @@ public class Blob {
         pw.close();
     }
 
-    static String readFile(File file) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        BufferedReader br = new BufferedReader(new FileReader(file));
-        String line;
-        Boolean isFirst = true;
-        while (br.ready()) {
-            line = br.readLine();
-            if (isFirst) {
-                sb.append(line);
-                isFirst = false;
-            } else
-                sb.append("\n" + line);
-        }
-        br.close();
-        return sb.toString();
+    // static String readFile(File file) throws IOException {
+    // StringBuilder sb = new StringBuilder();
+    // BufferedReader br = new BufferedReader(new FileReader(file));
+    // String line;
+    // Boolean isFirst = true;
+    // while (br.ready()) {
+    // line = br.readLine();
+    // if (isFirst) {
+    // sb.append(line);
+    // isFirst = false;
+    // } else
+    // sb.append("\n" + line);
+    // }
+    // br.close();
+    // return sb.toString();
 
-    }
+    // }
 
-    public static String getSHA1(String input) throws NoSuchAlgorithmException {
+    // public static String getSHA1(String input) throws NoSuchAlgorithmException {
 
-        MessageDigest mDigest = MessageDigest.getInstance("SHA1");
-        byte[] result = mDigest.digest(input.getBytes());
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < result.length; i++) {
-            sb.append(Integer.toString((result[i] & 0xff) + 0x100, 16).substring(1));
-        }
+    // MessageDigest mDigest = MessageDigest.getInstance("SHA1");
+    // byte[] result = mDigest.digest(input.getBytes());
+    // StringBuffer sb = new StringBuffer();
+    // for (int i = 0; i < result.length; i++) {
+    // sb.append(Integer.toString((result[i] & 0xff) + 0x100, 16).substring(1));
+    // }
 
-        return sb.toString();
-    }
+    // return sb.toString();
+    // }
 
 }

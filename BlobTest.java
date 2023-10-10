@@ -1,3 +1,4 @@
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.io.File;
@@ -10,12 +11,25 @@ public class BlobTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        String testFilePath = "testFile.txt";
+        String testFilePath = "BlobTestFile.txt";
         file = new File(testFilePath);
         PrintWriter pw = new PrintWriter(file);
         pw.println("some content");
         file.createNewFile();
         pw.close();
+    }
+
+    @AfterEach
+    void tearDown() throws Exception {
+
+        // del files
+        File BlobTestFile1 = new File("BlobTestFile.txt");
+        BlobTestFile1.delete();
+        File obj = new File("objects");
+        for (File f : obj.listFiles()) {
+            f.delete();
+        }
+        obj.delete();
     }
 
     @Test
