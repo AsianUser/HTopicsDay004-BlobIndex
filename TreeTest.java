@@ -27,7 +27,6 @@ public class TreeTest {
 
     @AfterEach
     public void tearDown() throws Exception {
-        FileUtils.deleteFile("Index");
         FileUtils.deleteDirectory("Objects");
         FileUtils.deleteFile("Tree");
         FileUtils.deleteDirectory("advancedTest");

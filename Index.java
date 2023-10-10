@@ -30,7 +30,7 @@ public class Index {
             Files.createDirectories(oP);
 
         // makes index file - if exists, delete then remake
-        indexFile = new File("index");
+        indexFile = new File("Tree");
         indexFile.delete();
         indexFile.createNewFile();
 

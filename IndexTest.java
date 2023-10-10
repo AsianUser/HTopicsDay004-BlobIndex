@@ -37,7 +37,7 @@ public class IndexTest {
         IndexTestFile1.delete();
         IndexTestFile2.delete();
 
-        File index = new File("index");
+        File index = new File("Tree");
         index.delete();
         File obj = new File("objects");
         for (File f : obj.listFiles()) {
@@ -77,13 +77,13 @@ public class IndexTest {
 
         String expected = "blob : 03dd43060849bff3cecbcd42125d3f66d58d29b3 : IndexTestFile1";
 
-        assertEquals(FileUtils.readFile(new File("index")), expected);
+        assertEquals(FileUtils.readFile(new File("Tree")), expected);
 
         index.add(IndexTestFile2.getName());
 
         expected = "blob : 03dd43060849bff3cecbcd42125d3f66d58d29b3 : IndexTestFile1\nblob : 45d319bf47847eabb709de4ab12c134b707936ef : IndexTestFile2";
 
-        assertEquals(FileUtils.readFile(new File("index")), expected);
+        assertEquals(FileUtils.readFile(new File("Tree")), expected);
 
     }
 
@@ -99,6 +99,6 @@ public class IndexTest {
 
         index.remove("IndexTestFile1");
 
-        assertEquals(FileUtils.readFile(new File("index")), expected);
+        assertEquals(FileUtils.readFile(new File("Tree")), expected);
     }
 }

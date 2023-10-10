@@ -55,32 +55,31 @@ public class Commit {
         head.createNewFile();
     }
 
+    // Setters & Getters
     public void setAuthor(String input) {
         author = input;
     }
-
     public void setSummary(String input) {
         summary = input;
     }
-
-    // gets date
+    // Gets date ("weekday month day year")
     public static String getDate() {
         Date date = new Date();
         return date.toString().substring(0, 11) + "2023";
 
     }
-
     public String getCurrentCommitSHA() {
         return currentCommitSHA;
     }
 
+
     // create Tree & return its hash
-    // for an "empty file"
+    // for "index"
     private String createTree() throws Exception {
         // create new Tree
         commitTree = new Tree();
         // read index
-        BufferedReader bf = new BufferedReader(new FileReader("index"));
+        BufferedReader bf = new BufferedReader(new FileReader("Tree"));
         while (bf.ready()) {
             // reads whats in index into the Tree file
             commitTree.addLine(bf.readLine());
@@ -110,20 +109,20 @@ public class Commit {
     public void commit() throws Exception {
         // gets current sha
         currentCommitSHA = createTree();
-        // gets date - this way date is consistent
+        // gets date - this way date is consistent across the commit
         date = getDate();
 
         // ----------------
 
-        hashes.add(currentCommitSHA);
+        // hashes.add(currentCommitSHA);
 
-        indexOfCurrent = hashes.indexOf(currentCommitSHA);
+        // indexOfCurrent = hashes.indexOf(currentCommitSHA);
 
-        if (indexOfCurrent == hashes.size() - 1) {
-            nextCommitSHA = null;
-        } else {
-            nextCommitSHA = hashes.get(indexOfCurrent + 1);
-        }
+        // if (indexOfCurrent == hashes.size() - 1) {
+        //     nextCommitSHA = null;
+        // } else {
+        //     nextCommitSHA = hashes.get(indexOfCurrent + 1);
+        // }
 
         // if (indexOfCurrent == 0) {
         // prevCommitSHA = null;
@@ -145,9 +144,13 @@ public class Commit {
         fw.write(createCommitFileContent());
         fw.close();
 
-        // clear out index file post commit
-        Index i = new Index();
-        i.init();
+        // clear out Tree file post commit
+        File tempTreeFile = new File("Tree");
+        tempTreeFile.delete();
+        tempTreeFile.createNewFile();
+
+        // re-add file to Tree file
+        tempTreeFile.add(author);
 
         // update previous Commit (if possible)
         if (prevCommitSHA != null && prevCommitSHA.length() > 0) {
@@ -225,57 +228,66 @@ public class Commit {
     }
 
     /**
+     * CheckOut Method
+     * - if made, can skip Honors Track
+     */
+
+    public static void checkOut(String commitHash) {
+
+    }
+
+    /**
      * 
      * TRAVERSAL METHODS
      * 
      */
 
-    public void seeNext() throws FileNotFoundException {
-        if (indexOfCurrent >= hashes.size() - 1) {
-            nextCommitSHA = null;
-        } else {
-            indexOfCurrent++;
-        }
+    // public void seeNext() throws FileNotFoundException {
+    // if (indexOfCurrent >= hashes.size() - 1) {
+    // nextCommitSHA = null;
+    // } else {
+    // indexOfCurrent++;
+    // }
 
-        currentCommitSHA = hashes.get(indexOfCurrent);
+    // currentCommitSHA = hashes.get(indexOfCurrent);
 
-        if (indexOfCurrent == hashes.size() - 1) {
-            nextCommitSHA = null;
-        } else {
-            nextCommitSHA = hashes.get(indexOfCurrent + 1);
-        }
+    // if (indexOfCurrent == hashes.size() - 1) {
+    // nextCommitSHA = null;
+    // } else {
+    // nextCommitSHA = hashes.get(indexOfCurrent + 1);
+    // }
 
-        // if (indexOfCurrent == 0) {
-        // prevCommitSHA = null;
-        // } else {
-        // prevCommitSHA = hashes.get(indexOfCurrent - 1);
-        // }
+    // // if (indexOfCurrent == 0) {
+    // // prevCommitSHA = null;
+    // // } else {
+    // // prevCommitSHA = hashes.get(indexOfCurrent - 1);
+    // // }
 
-    }
+    // }
 
-    public void seePrev() throws FileNotFoundException {
-        if (indexOfCurrent == 0) {
-            // move back if we can...
+    // public void seePrev() throws FileNotFoundException {
+    // if (indexOfCurrent == 0) {
+    // // move back if we can...
 
-        } else {
-            indexOfCurrent--;
-        }
+    // } else {
+    // indexOfCurrent--;
+    // }
 
-        currentCommitSHA = hashes.get(indexOfCurrent);
+    // currentCommitSHA = hashes.get(indexOfCurrent);
 
-        if (indexOfCurrent == hashes.size() - 1) {
-            nextCommitSHA = null;
-        } else {
-            nextCommitSHA = hashes.get(indexOfCurrent + 1);
-        }
+    // if (indexOfCurrent == hashes.size() - 1) {
+    // nextCommitSHA = null;
+    // } else {
+    // nextCommitSHA = hashes.get(indexOfCurrent + 1);
+    // }
 
-        // if (indexOfCurrent == 0) {
-        // prevCommitSHA = null;
-        // } else {
-        // prevCommitSHA = hashes.get(indexOfCurrent - 1);
-        // }
+    // // if (indexOfCurrent == 0) {
+    // // prevCommitSHA = null;
+    // // } else {
+    // // prevCommitSHA = hashes.get(indexOfCurrent - 1);
+    // // }
 
-    }
+    // }
 
     // public String makeTree() throws NoSuchAlgorithmException, IOException {
     // tree = new Tree();
