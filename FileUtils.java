@@ -39,12 +39,19 @@ public class FileUtils {
     }
 
     static void writeFile(String str, File file, boolean append) throws Exception {
+        if (!file.exists()) {
+            file.createNewFile();
+        }
         FileWriter fw = new FileWriter(file, append);
         fw.write(str);
         fw.close();
     }
 
     static void writeFile(String str, String fileName, boolean append) throws Exception {
+        File file = new File(fileName);
+        if (!file.exists()) {
+            file.createNewFile();
+        }
         FileWriter fw = new FileWriter(new File(fileName), append);
         fw.write(str);
         fw.close();
@@ -80,5 +87,38 @@ public class FileUtils {
         }
         return thing;
 
+    }
+
+    // deletes a directory with files inside
+    static void deleteDirectory(String dirPath) {
+        File dir = new File(dirPath);
+        if (dir.listFiles() == null) {
+            dir.delete();
+        } else {
+            for (File f : dir.listFiles()) {
+                f.delete();
+                if (f.isDirectory())
+                    deleteDirectory(f.getPath());
+            }
+            dir.delete();
+        }
+    }
+
+    // deletes a file
+    static void deleteFile(String filePath) {
+        File file = new File(filePath);
+        file.delete();
+    }
+
+    static void createFile(String fileName) throws Exception {
+        File f = new File(fileName);
+        f.delete();
+        f.createNewFile();
+    }
+
+    static void createDirectory(String dirName) throws Exception {
+        File dir = new File(dirName);
+        deleteDirectory(dirName);
+        dir.mkdir();
     }
 }

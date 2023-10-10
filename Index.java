@@ -41,16 +41,22 @@ public class Index {
     public void add(String fileName) throws Exception {
         // make new blob & file in obj folder
         File file = new File(fileName);
-        Blob addBlob = new Blob(file);
+        // Blob addBlob = new Blob(file);
 
-        String hash = addBlob.getHashString();
+        // String hash = addBlob.getHashString();
 
         String entry;
 
         // write to index
-        if (file.isDirectory())
+        if (file.isDirectory()) {
+            Tree t = new Tree();
+            t.addDirectory(fileName);
+            String hash = t.directoryHash;
             entry = "tree : " + hash + " : " + fileName;
-        else {
+        } else {
+            Blob addBlob = new Blob(file);
+
+            String hash = addBlob.getHashString();
             entry = "blob : " + hash + " : " + fileName;
         }
 

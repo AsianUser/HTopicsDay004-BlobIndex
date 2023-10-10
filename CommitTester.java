@@ -1,41 +1,72 @@
+import java.io.File;
 import java.io.PrintWriter;
+
+import org.junit.jupiter.api.AfterEach;
 
 public class CommitTester {
 
     public static void main(String[] args) throws Exception {
-        System.out.println(Commit.getDate());
-        Commit com = new Commit("Bo", "Cool!");
-        com.commitFile();
-        com.writeFile();
-        PrintWriter pw = new PrintWriter();
-        pw.write("lol");
-        pw.close();
-        com.commitFile();
-        com.writeFile();
 
-        System.out.println(com.hashesToString());
+        // create objects folder
+        File obj = new File("objects");
+        obj.delete();
+        obj.mkdir();
 
-        PrintWriter pw2 = new PrintWriter();
-        pw2.write("lol2");
+        // gen files
+        File commitTestFile1 = new File("commitTestFile1");
+        File commitTestFile2 = new File("commitTestFile2");
+        commitTestFile1.createNewFile();
+        commitTestFile2.createNewFile();
+        PrintWriter pw1 = new PrintWriter(commitTestFile1);
+        PrintWriter pw2 = new PrintWriter(commitTestFile2);
+        pw1.write("abc");
+        pw2.write("tstestests");
+        pw1.close();
         pw2.close();
-        com.commitFile();
-        com.writeFile();
-        System.out.println(com.hashesToString());
+        // add to Index
+        Index index = new Index();
+        index.init();
 
-        PrintWriter pw3 = new PrintWriter();
-        pw3.write("lol3");
-        pw3.close();
-        com.commitFile();
-        com.writeFile();
-        System.out.println(com.hashesToString());
+        index.add("commitTestFile1");
+        index.add("commitTestFile2");
 
-        com.seePrev();
-        com.writeFile();
-        System.out.println(com.hashesToString());
+        // create commit
 
-        com.seeNext();
+        Commit com = new Commit("author", "summary");
+        com.commit();
 
-        com.writeFile();
+        // Commit com = new Commit("Bo", "Cool!");
+        // com.commitFile();
+        // com.writeFile();
+        // PrintWriter pw = new PrintWriter();
+        // pw.write("lol");
+        // pw.close();
+        // com.commitFile();
+        // com.writeFile();
+
+        // System.out.println(com.hashesToString());
+
+        // PrintWriter pw2 = new PrintWriter();
+        // pw2.write("lol2");
+        // pw2.close();
+        // com.commitFile();
+        // com.writeFile();
+        // System.out.println(com.hashesToString());
+
+        // PrintWriter pw3 = new PrintWriter();
+        // pw3.write("lol3");
+        // pw3.close();
+        // com.commitFile();
+        // com.writeFile();
+        // System.out.println(com.hashesToString());
+
+        // com.seePrev();
+        // com.writeFile();
+        // System.out.println(com.hashesToString());
+
+        // com.seeNext();
+
+        // com.writeFile();
 
         // com.seePrev();
         // com.writeFile();
