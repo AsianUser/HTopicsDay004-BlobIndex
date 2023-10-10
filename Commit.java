@@ -1,4 +1,8 @@
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigInteger;
@@ -10,12 +14,12 @@ import java.security.*;
 
 public class Commit {
 
-    private String author;
-    private String summary;
-    private String prevSHA;
-    private String currentSHA;
-    private String nextSHA;
-    private Tree tree;
+    private String author = "";
+    private String summary = "";
+    private String date;
+    private String prevCommitSHA = "";
+    private String currentCommitSHA = "";
+    private String nextCommitSHA = "";
     private int indexOfCurrent;
 
     ArrayList<String> hashes = new ArrayList<>();
@@ -23,124 +27,152 @@ public class Commit {
     private int totalCommits = 0;
     private int commitIndex = 0;
 
-    public Commit(String author, String summary) throws Exception {
+    private Tree commitTree;
+    private String treeHash;
 
-        makeTree();
+    // finished product for this commit
+    private File commitFile;
+
+    // no prev commit
+    public Commit(String author, String summary) throws Exception {
 
         this.author = author;
         this.summary = summary;
         // tree.add("test.txt");
         // tree.generateBlob();
-
-        indexOfCurrent = 0;
+        treeHash = createTree();
 
     }
 
+    // has prev commit
     public Commit(String author, String summary, String prevSHA) throws Exception {
 
         this(author, summary);
-        this.prevSHA = prevSHA;
-        hashes.add(prevSHA);
-        indexOfCurrent = 1;
+        this.prevCommitSHA = prevSHA;
+
+        treeHash = createTree();
 
     }
 
+    public void setAuthor(String input) {
+        author = input;
+    }
+
+    public void setSummary(String input) {
+        summary = input;
+    }
+
+    // gets date
     public static String getDate() {
         Date date = new Date();
         return date.toString().substring(0, 11) + "2023";
+    }
+
+    // create Tree & return its hash
+    private String createTree() throws Exception {
+        // create new Tree
+        commitTree = new Tree();
+        // read index
+        BufferedReader bf = new BufferedReader(new FileReader("Index"));
+        while (bf.ready()) {
+            // reads whats in index into the Tree file
+            commitTree.addLine(bf.readLine());
+        }
+        bf.close();
+        // return
+        return commitTree.getTreeHash();
     }
 
     public String hashesToString() {
         return hashes.toString();
     }
 
-    public static String generateSHA(String input) throws NoSuchAlgorithmException {
-        try {
-            // getInstance() method is called with algorithm SHA-1
-            MessageDigest md = MessageDigest.getInstance("SHA-1");
+    // actually commit to obj file
+    public void commit() throws Exception {
+        // gets current sha
+        currentCommitSHA = createTree();
+        // gets date - this way date is consistent
+        date = getDate();
 
-            // digest() method is called
-            // to calculate message digest of the input string
-            // returned as array of byte
-            byte[] messageDigest = md.digest(input.getBytes());
+        // ----------------
 
-            // Convert byte array into signum representation
-            BigInteger no = new BigInteger(1, messageDigest);
+        hashes.add(currentCommitSHA);
 
-            // Convert message digest into hex value
-            String hashtext = no.toString(16);
-
-            // Add preceding 0s to make it 32 bit
-            while (hashtext.length() < 32) {
-                hashtext = "0" + hashtext;
-            }
-
-            // return the HashText
-            return hashtext;
-        }
-
-        // For specifying wrong message digest algorithms
-        catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void writeFile() throws FileNotFoundException {
-        PrintWriter pw = new PrintWriter(
-                currentSHA);
-
-        pw.print("Current: " + currentSHA + "\n");
-        if (prevSHA != null) {
-            pw.print("Previous: " + prevSHA + "\n");
-
-        }
-        if (nextSHA != null) {
-            pw.print("Next: " + nextSHA + "\n");
-
-        }
-        pw.print(author + "\n" + getDate() + "\n" + summary);
-
-        pw.close();
-    }
-
-    public void commitFile() throws NoSuchAlgorithmException, IOException {
-        currentSHA = generateSHA(tree.allConents() + summary + getDate() + author);
-        hashes.add(currentSHA);
-        indexOfCurrent = hashes.indexOf(currentSHA);
+        indexOfCurrent = hashes.indexOf(currentCommitSHA);
 
         if (indexOfCurrent == hashes.size() - 1) {
-            nextSHA = null;
+            nextCommitSHA = null;
         } else {
-            nextSHA = hashes.get(indexOfCurrent + 1);
+            nextCommitSHA = hashes.get(indexOfCurrent + 1);
         }
 
         if (indexOfCurrent == 0) {
-            prevSHA = null;
+            prevCommitSHA = null;
         } else {
-            prevSHA = hashes.get(indexOfCurrent - 1);
+            prevCommitSHA = hashes.get(indexOfCurrent - 1);
         }
+
+        // -------------
+
+        // creates file to put into objects folder;
+        createCommitContent();
+        commitFile = new File("objects", currentCommitSHA);
+
+        // make new file
+        commitFile.createNewFile();
+
+        // write contents
+        FileWriter fw = new FileWriter(commitFile);
+        fw.write(createCommitContent());
+        fw.close();
 
     }
 
+    private void createCurrentCommitSHA() throws Exception {
+        if (treeHash == null) {
+            throw new Exception("Hash of tree is null");
+        }
+        // hashes --> current commit sha
+        // skips over line 3
+        currentCommitSHA = FileUtils.hash(treeHash + "\n" + prevCommitSHA + "\n" + author + "\n" + date + "\n"
+                + summary);
+        // return currentCommitSHA;
+    }
+
+    private String createCommitContent() throws Exception {
+        if (treeHash == null) {
+            throw new Exception("Hash of tree is null");
+        }
+        // return the text within the current Commit file
+        return (treeHash + "\n" + prevCommitSHA + "\n" + nextCommitSHA + "\n" + author + "\n" + date + "\n"
+                + summary);
+    }
+
+    /**
+     * 
+     * TRAVERSAL METHODS
+     * 
+     */
+
     public void seeNext() throws FileNotFoundException {
         if (indexOfCurrent >= hashes.size() - 1) {
-            nextSHA = null;
+            nextCommitSHA = null;
         } else {
             indexOfCurrent++;
         }
 
-        currentSHA = hashes.get(indexOfCurrent);
+        currentCommitSHA = hashes.get(indexOfCurrent);
 
         if (indexOfCurrent == hashes.size() - 1) {
-            nextSHA = null;
+            nextCommitSHA = null;
         } else {
-            nextSHA = hashes.get(indexOfCurrent + 1);
+            nextCommitSHA = hashes.get(indexOfCurrent + 1);
         }
 
         if (indexOfCurrent == 0) {
-            prevSHA = null;
+            prevCommitSHA = null;
         } else {
-            prevSHA = hashes.get(indexOfCurrent - 1);
+            prevCommitSHA = hashes.get(indexOfCurrent - 1);
         }
 
     }
@@ -153,25 +185,25 @@ public class Commit {
             indexOfCurrent--;
         }
 
-        currentSHA = hashes.get(indexOfCurrent);
+        currentCommitSHA = hashes.get(indexOfCurrent);
 
         if (indexOfCurrent == hashes.size() - 1) {
-            nextSHA = null;
+            nextCommitSHA = null;
         } else {
-            nextSHA = hashes.get(indexOfCurrent + 1);
+            nextCommitSHA = hashes.get(indexOfCurrent + 1);
         }
 
         if (indexOfCurrent == 0) {
-            prevSHA = null;
+            prevCommitSHA = null;
         } else {
-            prevSHA = hashes.get(indexOfCurrent - 1);
+            prevCommitSHA = hashes.get(indexOfCurrent - 1);
         }
 
     }
 
-    public String makeTree() throws NoSuchAlgorithmException, IOException {
-        tree = new Tree();
-        return generateSHA(tree.allConents());
-    }
+    // public String makeTree() throws NoSuchAlgorithmException, IOException {
+    // tree = new Tree();
+    // return generateSHA(tree.allConents());
+    // }
 
 }

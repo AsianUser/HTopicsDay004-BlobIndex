@@ -74,7 +74,11 @@ public class FileUtils {
         }
 
         // Return the hexadecimal SHA-1 hash
-        return hexHash.toString();
+        String thing = hexHash.toString();
+        while (thing.length() < 40) {
+            thing = "0" + thing;
+        }
+        return thing;
 
     }
 }

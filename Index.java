@@ -2,6 +2,10 @@
 import java.io.*;
 import java.nio.file.*;
 
+/**
+ * This class is basically all the file presently in the commit
+ * As you edit your files, it changes stuff here
+ */
 public class Index {
 
     File indexFile;
