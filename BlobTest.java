@@ -1,5 +1,6 @@
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.PrintWriter;
@@ -22,7 +23,7 @@ public class BlobTest {
     @AfterEach
     void tearDown() throws Exception {
 
-        // del files
+        // delete files
         File BlobTestFile1 = new File("BlobTestFile.txt");
         BlobTestFile1.delete();
         File obj = new File("objects");
@@ -32,8 +33,29 @@ public class BlobTest {
         obj.delete();
     }
 
+    // copy-pasted from Lopez website
     @Test
+    @DisplayName("Testing if Blob class creates an objects folder")
+    public void testCreateFolder() throws Exception {
+        // programmatically create a test file
+        File file = new File("test.txt");
+        file.createNewFile();
 
+        // programmatically write to the test file
+        // the method is a custom method written in Day 1 of Git Project
+        FileUtils.writeFile("hello world", "test.txt", true);
+
+        // programmatically create a blob
+        Blob blob = new Blob("test.txt");
+
+        // Blob should create an objects folder.
+        File folder = new File("objects");
+
+        // does the folder exist?
+        assertTrue(folder.exists());
+    }
+
+    @Test
     public void testConstructor() throws Exception {
         Blob blob = new Blob(file);
         String hash = blob.getHashString();
@@ -55,5 +77,12 @@ public class BlobTest {
         Blob blob = new Blob(file);
         String myContents = blob.getFileContent();
         assertEquals(myContents, "some content");
+    }
+
+    @Test
+    public void testCharacterCount() throws Exception {
+        Blob blob = new Blob(file);
+        String myContents = blob.getFileContent();
+        assertEquals(FileUtils.countCharacters("objects/" + blob.getHashString()), myContents.length());
     }
 }

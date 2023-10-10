@@ -20,6 +20,18 @@ public class FileUtils {
         return testMode;
     }
 
+    // Git: day 2
+    static int countCharacters(String fileName) throws Exception {
+        int charCount = 0;
+        BufferedReader buffReader = new BufferedReader(new FileReader(fileName));
+        while (buffReader.ready()) {
+            buffReader.read();
+            charCount++;
+        }
+        buffReader.close();
+        return charCount;
+    }
+
     static String readFile(File file) throws IOException {
         StringBuilder sb = new StringBuilder();
         BufferedReader br = new BufferedReader(new FileReader(file));
