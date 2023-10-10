@@ -1,6 +1,7 @@
 {
-    "java.debug.settings.onBuildFailureProceed": true,
-    "java.test.config":{
-        "workingDirectory": "${workspaceFolder}"
-    }
+  "java.debug.settings.onBuildFailureProceed": true,
+  // sets junit test workspace to current folder
+  "java.test.config": {
+    "workingDirectory": "${workspaceFolder}"
+  }
 }
