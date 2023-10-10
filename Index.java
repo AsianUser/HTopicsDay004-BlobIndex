@@ -1,6 +1,7 @@
 
 import java.io.*;
 import java.nio.file.*;
+import java.util.ArrayList;
 
 /**
  * This class is basically all the file presently in the commit
@@ -12,8 +13,18 @@ public class Index {
     String indexPath; // path to index.txt
     String objectsFolderPath = "objects/";
 
-    public Index() throws IOException {
+    private ArrayList<String> contents;
 
+    public Index() throws Exception {
+        init();
+    }
+
+    public void init() throws Exception {
+
+        // init vars
+        contents = new ArrayList<>();
+
+        // creates objects folder if not already existant
         Path oP = Paths.get(objectsFolderPath);
         if (!Files.exists(oP))
             Files.createDirectories(oP);
@@ -24,24 +35,9 @@ public class Index {
         indexFile.createNewFile();
 
         indexPath = indexFile.getPath();
-
     }
 
-    public void init() throws Exception {
-        objectsFolderPath = "./test/objects/";
-
-        Path oP = Paths.get(objectsFolderPath);
-        if (!Files.exists(oP))
-            Files.createDirectories(oP);
-
-        // makes index file - if exists, delete then remake
-        indexFile = new File("test", "index");
-        indexFile.delete();
-        indexFile.createNewFile();
-
-        indexPath = indexFile.getPath();
-    }
-
+    // adds new entry to index file
     public void add(String fileName) throws Exception {
         // make new blob & file in obj folder
         File file = new File(fileName);
@@ -49,12 +45,43 @@ public class Index {
 
         String hash = addBlob.getHashString();
 
+        String entry;
+
         // write to index
-        FileWriter fw = new FileWriter(indexPath, true);
-        fw.write(fileName + " : " + hash + "\n");
+        if (file.isDirectory())
+            entry = "tree : " + hash + " : " + fileName;
+        else {
+            entry = "blob : " + hash + " : " + fileName;
+        }
 
-        System.out.println(fileName + " : " + hash + "\n");
+        // if not already inside arrayList
+        if (!contents.contains(entry))
+            contents.add(entry);
 
+        // writes to index file
+        FileWriter fw = new FileWriter(indexFile, true);
+        if (indexFile.length() != 0)
+            fw.write("\n");
+        fw.write(entry);
+
+        // System.out.println(fileName + " : " + hash + "\\n");
+
+        fw.close();
+    }
+
+    public void addDirectory(String filePath) throws Exception {
+
+        File f = new File(filePath);
+        if (!f.isDirectory())
+            throw new Exception("not a valid directory");
+
+        Tree t = new Tree();
+        String treeHash = t.addDirectory(filePath);
+
+        FileWriter fw = new FileWriter(indexFile);
+        if (indexFile.length() != 0)
+            fw.write("\n");
+        fw.append("tree : " + treeHash + " : " + filePath);
         fw.close();
     }
 
@@ -62,41 +89,51 @@ public class Index {
 
         // look for fileName, takes hash, and delete line
 
+        // removes from arrayList
+        String entry = fileName + " : " + FileUtils.hash(FileUtils.readFile(new File(fileName)));
+        contents.remove(entry);
+
         // System.out.println(indexFile.canRead());
         BufferedReader bf = new BufferedReader(new FileReader(indexFile));
 
         // this will be put into new index file
-        String text = "";
+        StringBuilder text = new StringBuilder("");
 
         while (bf.ready()) {
-            // System.out.println("ready");
             String line = bf.readLine();
-            // System.out.println(line.length());
 
-            // locate name
-            int index = 0;
-            while (line.charAt(index) != ':' && index < line.length()) {
-                // System.out.print(line.charAt(index) + "]]]");
-                index++;
+            // if the line does not contain the fileName, add it to String builder
+
+            if (!line.contains(fileName)) {
+                if (text.length() > 0)
+                    text.append("\n");
+                text.append(line);
             }
 
-            // builds string to put in new indexfile
-            if (!fileName.equals(line.substring(0, index - 1))) {
-                // System.out.println(line.substring(0, index - 1));
-                text += line + "\n";
-            }
+            // // locate name
+            // int index = 0;
+            // while (line.charAt(index) != ':' && index < line.length()) {
+            // // System.out.print(line.charAt(index) + "]]]");
+            // index++;
+            // }
+
+            // // builds string to put in new indexfile
+            // if (!fileName.equals(line.substring(0, index - 1))) {
+            // // System.out.println(line.substring(0, index - 1));
+            // text += line + "\n";
+            // }
         }
 
+        bf.close();
+
         // delete indexfile & rewrite in new indexfile
-        // might be better way to do, but "me no want think"
         indexFile.delete();
         indexFile.createNewFile();
 
         FileWriter fw = new FileWriter(indexFile);
         // System.out.println("write");
-        fw.write(text);
+        fw.write(text.toString());
 
-        bf.close();
         fw.close();
 
     }
