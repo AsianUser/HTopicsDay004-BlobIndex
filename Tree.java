@@ -19,7 +19,7 @@ public class Tree {
     private ArrayList<String> entries;
     String combinedContents = "";
     File folder;
-    File treeDoc;
+    // File treeDoc;
     String treeHash;
 
     String directoryHash;
@@ -28,11 +28,11 @@ public class Tree {
 
         entries = new ArrayList<String>();
 
-        File file = new File("Tree");
-        // if (!file.exists()) {
-        file.delete();
-        file.createNewFile();
-        // }
+        File tree = new File("Tree");
+        tree.createNewFile();
+
+        // set treeHash
+        treeHash = FileUtils.hash(FileUtils.readFile(tree));
     }
 
     // appends text into Tree file
@@ -58,89 +58,110 @@ public class Tree {
      * "tree : HASH : folderName"
      * 
      */
-
     public void add(String input) throws Exception {
 
-        // check if input is a fileName
-        File fileToAdd = new File(input);
-        String newEntryForTree;
+        // check if this is a fileName or hash
+        // if is a "_ _ _ _ : hash", check objects folder for this file.
+        // if exists, just toss line right in. if not exists, error
+        // else, treat as file
 
-        // if input is not fileName, make sure the file mentioned exists
-        if (!fileToAdd.exists()) {
-            String fileType = input.substring(0, 6);
+        File addFile = new File(input);
 
-            if (fileType.equals("tree : ") || fileType.equals("blob : ")) {
-
-                throw new FileNotFoundException("invalid add file");
+        // if input is not a fileName
+        if (!addFile.exists()) {
+            // check if "tree : " || "blob : "
+            String prefix = input.substring(0, 7);
+            String hashString = input.substring(7, 47);
+            System.out.println(prefix + "\n" + hashString);
+            File blobbedFile = new File("objects", hashString);
+            // if already preformatted, toss right in
+            if ((prefix.equals("tree : ") || prefix.equals("blob : ")) && blobbedFile.exists()) {
+                addLine(input);
+            } else {
+                throw new Exception("Invalid input");
             }
+
         }
+        // if input is a fileName
+        else {
+            String entry = "";
 
-        if (fileToAdd.isFile()) { // if is a file
-            // write to Tree File
-            String fileContent = FileUtils.readFile(fileToAdd);
-            String hashOfFile = FileUtils.hash(fileContent);
+            // if is a file
+            if (addFile.isFile()) {
 
-            newEntryForTree = "blob : " + hashOfFile + " : " + fileToAdd.getName();
+                // create blob
+                Blob blob = new Blob(input);
+                // create entry for Tree file
+                entry = "blob : " + blob.getHashString() + " : " + blob.getFileName();
+            }
+            // if is a directory, calls addDirectory
+            else if (addFile.isDirectory()) {
 
-            // write this to Tree
-            addLine(newEntryForTree);
+                entry = "tree : " + addDirectory(input) + " : " + input;
+            }
 
-        } else { // if is a directory
-            String hashOfFile = addDirectory(input);
-
-            newEntryForTree = "tree : " + hashOfFile + " : " + fileToAdd.getName();
-
-            addLine(newEntryForTree);
+            // writes into Tree file
+            addLine(entry);
         }
-
-        // add to arraylist
-        entries.add(newEntryForTree);
-
-        // update SHA
-        treeHash = FileUtils.hash(FileUtils.readFile(new File("Tree")));
 
     }
 
+    // can take anything
     public void remove(String input) throws Exception {
 
-        StringBuilder sb = new StringBuilder("");
-        BufferedReader br = new BufferedReader(new FileReader("Tree"));
+        StringBuilder stringBuild = new StringBuilder("");
 
-        // goes through entire Tree file
-        while (br.ready()) {
-            String line = br.readLine();
+        // look through Tree file
+        BufferedReader buffReader = new BufferedReader(new FileReader("Tree"));
 
-            // does not include line with "input"
-            if (!line.contains(input)) {
-                sb.append(line);
-            } else {
-                // remove from arraylist
-                entries.remove(line);
+        while (buffReader.ready()) {
+            String readLine = buffReader.readLine();
+
+            // check if fileName, fileHash, or both match input
+            String readHash = readLine.substring(7, 47);
+            String readName = readLine.substring(50);
+            if (!(input.equals(readHash) || input.equals(readName) || input.equals(readHash + " : " + readName))) {
+                // make sure format good
+                if (stringBuild.length() != 0)
+                    stringBuild.append("\n" + readLine);
+                else {
+                    stringBuild.append(readLine);
+                }
             }
-
         }
-        br.close();
 
-        // creates new Tree file wihtout the removed
-        FileWriter fw = new FileWriter("Tree");
-        fw.write(sb.toString());
-        fw.close();
+        buffReader.close();
+
+        // rewrite Tree file without the removed Blob
+
+        FileWriter fileWrite = new FileWriter("Tree");
+
+        fileWrite.write(stringBuild.toString());
+
+        fileWrite.close();
 
         // update SHA
         treeHash = FileUtils.hash(FileUtils.readFile(new File("Tree")));
+
     }
 
     // creates blob with current Tree file
-    public void generateBlob() throws Exception {
+    // returns the hash of the blob
+    public String generateBlob() throws Exception {
         Blob tempBlob = new Blob("Tree");
-        treeHash = tempBlob.hashFileString;
-    }
-
-    // returns saved Tree location in obj folder
-    public String getTreeHash() {
+        System.out.println(tempBlob.fileContents);
+        treeHash = tempBlob.hash;
         return treeHash;
     }
 
+    // returns hash / saved Tree location in obj folder
+    public String getTreeHash() throws Exception {
+        treeHash = FileUtils.hash(FileUtils.readFile(new File("Tree")));
+        return treeHash;
+    }
+
+    // generates Blob for input folder & nested folders/files
+    // returns hash of directory
     public String addDirectory(String dirPath) throws Exception {
         System.out.println("adddir");
 
@@ -152,20 +173,22 @@ public class Tree {
         }
         // creates Tree of directory
         Tree dir = traverseDirectory(folder);
+
+        System.out.println("/________\n" + FileUtils.readFile(new File("Tree")) + "\n_________/");
         // saves to obj folder
         dir.generateBlob();
-        // get the name of di
+        // get the name of dir
         directoryHash = (dir.getTreeHash());
+
+        // adds results to tree file
 
         return directoryHash;
     }
 
     // recursion time
-    private Tree traverseDirectory(File folder) throws Exception {
+    // returns the hash of the directory we input
+    private String traverseDirectory(File folder) throws Exception {
 
-        // System.out.println(folder.getPath());
-
-        // StringBuilder sb = new StringBuilder("");
         // contains all the files/trees collected
         // will use to create a tree at end
         ArrayList<String> contents = new ArrayList<String>();
@@ -178,18 +201,18 @@ public class Tree {
                 System.out.println(f.getName() + " " + traverseDirectory(f));
 
                 // create new tree obj
-                Tree childTree = traverseDirectory(f);
+                String hash = traverseDirectory(f);
                 // create blob
                 childTree.generateBlob();
                 String entry = "tree : " + childTree.getTreeHash() + " : " + f.getName();
-                contents.add(entry);
+                // contents.add(entry);
 
             } else if (f.isFile()) {
                 // System.out.println("not directory");
                 System.out.println("blob : " + FileUtils.hash(FileUtils.readFile(f)) + " : "
                         + f.getName());
                 String entry = "blob : " + FileUtils.hash(FileUtils.readFile(f)) + " : " + f.getName();
-                contents.add(entry);
+                // contents.add(entry);
 
             }
         }
@@ -210,38 +233,6 @@ public class Tree {
         // System.out.println("returned");
         return returned;
 
-    }
-
-    public String allConents() throws Exception {
-        StringBuilder record = new StringBuilder("");
-
-        BufferedReader text = new BufferedReader(new FileReader("Tree"));
-
-        while (text.ready()) {
-            record.append((char) text.read());
-        }
-
-        text.close();
-        return record.toString();
-    }
-
-    // checks and updates/recreates Tree file
-    // also creates blob in objects folder
-    public void save() throws Exception {
-        StringBuilder sb = new StringBuilder();
-        for (String s : entries) {
-            sb.append(s + "\n");
-        }
-
-        File temp = new File("Tree");
-        temp.delete();
-        temp.createNewFile();
-
-        FileWriter fw = new FileWriter(temp);
-        fw.write(sb.toString());
-
-        // creates a new blob
-        generateBlob();
     }
 
     // ------------------------------------------

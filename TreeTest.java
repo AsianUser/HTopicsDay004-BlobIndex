@@ -1,4 +1,4 @@
-import org.jcp.xml.dsig.internal.dom.Utils;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -17,18 +17,50 @@ public class TreeTest {
     private Index index;
 
     @BeforeEach
+    @DisplayName("Re-initializes tree & makes all files for testing")
     public void setUp() throws Exception {
         tree = new Tree();
 
         index = new Index();
         index.init();
 
+        // create files
+        String TreeTestFile1Name = "TreeTestFile1";
+        File TreeTestFile1 = new File(TreeTestFile1Name);
+        PrintWriter pw = new PrintWriter(TreeTestFile1);
+        pw.println("TreeTestFile1");
+        TreeTestFile1.createNewFile();
+        pw.close();
+        Blob TreeTestFile1Blob = new Blob(TreeTestFile1);
+
+        String TreeTestFile2Name = "TreeTestFile2";
+        File TreeTestFile2 = new File(TreeTestFile2Name);
+        pw = new PrintWriter(TreeTestFile2);
+        pw.println("TreeTestFile2");
+        TreeTestFile2.createNewFile();
+        pw.close();
+        Blob TreeTestFile2Blob = new Blob(TreeTestFile2);
+
+        String TreeTestFile3Name = "TreeTestFile3";
+        File TreeTestFile3 = new File(TreeTestFile3Name);
+        pw = new PrintWriter(TreeTestFile3);
+        pw.println("TreeTestFile3");
+        TreeTestFile3.createNewFile();
+        pw.close();
+        Blob TreeTestFile3Blob = new Blob(TreeTestFile3);
+
     }
 
     @AfterEach
+    @DisplayName("Deletes all files & folders that may have been created")
     public void tearDown() throws Exception {
-        FileUtils.deleteDirectory("Objects");
+        FileUtils.deleteDirectory("objects");
         FileUtils.deleteFile("Tree");
+        FileUtils.deleteFile("TreeTestFile1");
+        FileUtils.deleteFile("TreeTestFile2");
+        FileUtils.deleteFile("TreeTestFile3");
+
+        // from addDirectory tests
         FileUtils.deleteDirectory("advancedTest");
         FileUtils.deleteDirectory("test1");
     }
@@ -39,7 +71,7 @@ public class TreeTest {
     // gen a tree file
 
     @Test
-    @DisplayName("test tree consturctor to make tree file")
+    @DisplayName("test tree constructor to make tree file")
     public void testTreeConstructor() throws Exception {
         Tree tree = new Tree();
 
@@ -49,28 +81,7 @@ public class TreeTest {
     }
 
     @Test
-    @DisplayName("Test if can write to tree")
-    public void testWriteToTree() throws Exception {
-        Tree tree = new Tree();
-
-        File treeFile = new File("tree");
-        assertTrue(treeFile.exists());
-
-        // create bunch of files
-        File testFile = new File("test.txt");
-        testFile.createNewFile();
-
-        String fileContents = FileUtils.readFile(testFile);
-        String fileSHA = FileUtils.hash(fileContents);
-
-        String newLine = "blob : " + fileSHA + " : " + testFile.getName();
-        tree.addLine(newLine);
-
-        // tree.add();
-        assertEquals(newLine, tree.allConents());
-    }
-
-    @Test
+    @DisplayName("Tests adding individual lines directly to Tree file - this is mostly a helper method")
     public void testAddLine() throws Exception {
         Tree tree = new Tree();
         tree.addLine("blob : 81e0268c84067377a0a1fdfb5cc996c93f6dcf9f : file1.txt");
@@ -82,30 +93,80 @@ public class TreeTest {
     }
 
     @Test
-    public void testRemove() throws Exception {
-        Tree tree = new Tree();
-        tree.addLine("blob : 81e0268c84067377a0a1fdfb5cc996c93f6dcf9f : file1.txt");
-        tree.addLine("tree : bd1ccec139dead5ee0d8c3a0499b42a7d43ac44b");
+    @DisplayName("Tests adding files to Tree file")
+    public void testAdd() throws Exception {
+        // assert adding via fileName works
+        tree.add("TreeTestFile1");
+        // System.out.println(FileUtils.readFile(new File("tree")));
+        assertTrue(FileUtils.readFile(new File("Tree")).contains("TreeTestFile1"));
+        // add via preformatted
+        tree.add("blob : 9466c89b883caf71d2e11922122c40d903d941c1 : TreeTestFile3");
+        assertTrue(FileUtils.readFile(new File("Tree"))
+                .contains("blob : 9466c89b883caf71d2e11922122c40d903d941c1 : TreeTestFile3"));
 
-        tree.remove("file1.txt");
-
-        String expectedFileName = "ee8612eaba3e603c9cb58e1d26a0b95ee3477652";
-        String actualFileName = tree.getTreeHash();
-
-        assertEquals(expectedFileName, actualFileName);
+        // test final format
+        String expectedTree = "blob : 2b9f612f7f2d2a578f6eef93d06c3b58496f8c3d : TreeTestFile1\nblob : 9466c89b883caf71d2e11922122c40d903d941c1 : TreeTestFile3";
+        assertEquals(FileUtils.readFile(new File("Tree")), expectedTree);
     }
 
     @Test
+    @DisplayName("Tests deleting files from Tree file")
+    public void testRemove() throws Exception {
+        // add some files
+        tree.add("TreeTestFile1");
+        tree.add("TreeTestFile2");
+
+        // remove
+        tree.remove("TreeTestFile2");
+
+        // hash
+        String expectedHash = FileUtils.hash("blob : 2b9f612f7f2d2a578f6eef93d06c3b58496f8c3d : TreeTestFile1");
+        String actualHash = tree.getTreeHash();
+
+        // assert line was indeed removed
+        assertEquals(expectedHash, actualHash);
+
+        // remove
+        tree.remove("TreeTestFile1");
+
+        // hash
+        expectedHash = FileUtils.hash("");
+        actualHash = tree.getTreeHash();
+
+        // assert line was indeed removed
+        assertEquals(expectedHash, actualHash);
+    }
+
+    @Test
+    @DisplayName("Tests generating a blob from Tree file")
     public void testGenerateBlob() throws Exception {
         Tree tree = new Tree();
-        tree.addLine("blob : 81e0268c84067377a0a1fdfb5cc996c93f6dcf9f : file1.txt");
-        tree.addLine("tree : bd1ccec139dead5ee0d8c3a0499b42a7d43ac44b");
+        // add some files
+        tree.add("TreeTestFile1");
+        tree.add("TreeTestFile3");
 
-        String expectedBlobHash = "80aaaaaea78ef9525bf854dcb1d60e2abe087221";
+        String expectedBlobHash = FileUtils.hash(
+                "blob : 2b9f612f7f2d2a578f6eef93d06c3b58496f8c3d : TreeTestFile1\nblob : 9466c89b883caf71d2e11922122c40d903d941c1 : TreeTestFile3");
         tree.generateBlob();
 
         File blobFile = new File("objects/" + expectedBlobHash);
+        // assert that the Blob file exists
         assertTrue(blobFile.exists());
+
+        // remove a file
+        tree.remove("TreeTestFile3");
+
+        // make another Blob for new Tree
+        tree.generateBlob();
+
+        // make sure original still exists
+        assertTrue(blobFile.exists());
+
+        expectedBlobHash = FileUtils.hash("blob : 2b9f612f7f2d2a578f6eef93d06c3b58496f8c3d : TreeTestFile1");
+        blobFile = new File("objects/" + expectedBlobHash);
+        // assert that the Blob file exists
+        assertTrue(blobFile.exists());
+
     }
 
     @Test
@@ -113,7 +174,7 @@ public class TreeTest {
 
         Tree tree = new Tree();
 
-        // create files
+        // create files according to the directory test from hub
         FileUtils.createDirectory("test1");
 
         File test1 = new File("test1");
@@ -145,7 +206,8 @@ public class TreeTest {
         String expectedTree = "tree : " + FileUtils.hash(expectedText) + " : test1";
         String expectedHash = FileUtils.hash(expectedTree);
 
-        tree.addDirectory("test1");
+        System.out.println(tree.addDirectory("test1"));
+        System.out.println(expectedTree);
         // assertEquals(tree.getPreHashDirectory(), expectedTree);
         // throw new Exception("" + test1.exists());
 
