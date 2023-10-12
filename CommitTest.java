@@ -21,6 +21,9 @@ public class CommitTest {
 
         tree = new Tree();
 
+        FileUtils.deleteFile("head");
+        FileUtils.deleteFile("Tree");
+
         File CommitTestFile1 = new File("CommitTestFile1");
         File CommitTestFile2 = new File("CommitTestFile2");
         File CommitTestFile3 = new File("CommitTestFile3");
@@ -111,10 +114,10 @@ public class CommitTest {
         FileUtils.deleteDirectory(CommitTestFolder2.getName());
         FileUtils.deleteDirectory(CommitTestFolder3.getName());
 
-        FileUtils.deleteDirectory("objects");
-        FileUtils.deleteFile("head");
-        FileUtils.deleteFile("Tree");
-        FileUtils.deleteFile("commit");
+        // FileUtils.deleteDirectory("objects");
+        // FileUtils.deleteFile("head");
+        // FileUtils.deleteFile("Tree");
+        // FileUtils.deleteFile("commit");
 
     }
 
@@ -166,7 +169,7 @@ public class CommitTest {
                 "summary");
 
         // check if the commit blob contains the right contents
-        assertEquals(c1.commitBlob.getFileContent(), "f5fbdf45158451c507e3601504d0c4e216789f79\n" +
+        assertEquals(FileUtils.readFile(c1.commitFile), "f5fbdf45158451c507e3601504d0c4e216789f79\n" +
                 "\n" +
                 "\n" +
                 "author\n" +
@@ -184,7 +187,16 @@ public class CommitTest {
 
         Commit c1 = new Commit("author", "summary");
         c1.commit();
-        System.out.println("c1" + c1.getCurrentCommitSHA());
+        System.out.println("c1 " + c1.getCurrentCommitSHA());
+
+        // checks if the commit file contains the right contents
+        assertEquals(FileUtils.readFile(c1.commitFile),
+                "f5fbdf45158451c507e3601504d0c4e216789f79\n" +
+                        "\n" +
+                        "\n" +
+                        "author\n" +
+                        c1.getDate() + "\n" +
+                        "summary");
 
         tree.add("CommitTestFile3");
         tree.add("CommitTestFolder1");
@@ -192,36 +204,25 @@ public class CommitTest {
         Commit c2 = new Commit("author", "summary", c1.getCurrentCommitSHA());
         c2.commit();
 
-        // test c1
         // checks if the commit file contains the right contents
-        assertEquals(FileUtils.readFile(c1.commitFile), "f5fbdf45158451c507e3601504d0c4e216789f79\n" +
-                "\n" +
-                "\n" +
-                "author\n" +
-                c1.getDate() + "\n" +
-                "summary");
-
-        // check if the commit blob contains the right contents
-        assertEquals(c1.commitBlob.getFileContent(), "f5fbdf45158451c507e3601504d0c4e216789f79\n" +
-                "\n" +
-                "\n" +
-                "author\n" +
-                c1.getDate() + "\n" +
-                "summary");
-
-        // test c2
-
-        // checks if the commit file contains the right contents
-        assertEquals(FileUtils.readFile(c2.commitFile), "ef556bdf4bdbd9f6a91e8e95fa4e347330e63b14\n" +
-                "f5fbdf45158451c507e3601504d0c4e216789f79\n" +
+        assertEquals(FileUtils.readFile(c2.commitFile), "8df0f059472e1bf7cf79317d3053623ffaa52077\n" +
+                "55fd16d4885179d9ecaeb630ee33dde71724d930\n" +
                 "\n" +
                 "author\n" +
                 c2.getDate() + "\n" +
                 "summary");
 
         // check if the commit blob contains the right contents
-        assertEquals(c2.commitBlob.getFileContent(), "ef556bdf4bdbd9f6a91e8e95fa4e347330e63b14\n" +
-                "f5fbdf45158451c507e3601504d0c4e216789f79\n" +
+        assertEquals(FileUtils.readFile(c1.commitBlobFile), ("f5fbdf45158451c507e3601504d0c4e216789f79\n" +
+                "\n" +
+                "70e40a141d703c465cc348360ad731b693eab853\n" +
+                "author\n" +
+                c1.getDate() + "\n" +
+                "summary"));
+
+        // check if the commit blob contains the right contents
+        assertEquals(FileUtils.readFile(c2.commitBlobFile), "8df0f059472e1bf7cf79317d3053623ffaa52077\n" +
+                "55fd16d4885179d9ecaeb630ee33dde71724d930\n" +
                 "\n" +
                 "author\n" +
                 c2.getDate() + "\n" +
@@ -264,30 +265,30 @@ public class CommitTest {
         // test c1
         assertEquals("f5fbdf45158451c507e3601504d0c4e216789f79\n" +
                 "\n" +
-                "7f90c162a42eb01e49c03b25dade6eda932d1794\n" +
+                "4d63955f1298eefa936cee1deb02a9c8ba2eabb4\n" +
                 "author\n" +
                 c1.setDate() + "\n" +
                 "summary", FileUtils.readFile(new File("objects", c1.getCurrentCommitSHA())));
 
         // test c2
-        assertEquals("7f90c162a42eb01e49c03b25dade6eda932d1794\n" +
-                "f5fbdf45158451c507e3601504d0c4e216789f79\n" +
-                "720bb19e78f5a0b182628afd13a6ec24dc9d7199\n" +
+        assertEquals("46c5a7f675d56d8c4b56cd5aa60149ebf15b3c21\n" +
+                "55fd16d4885179d9ecaeb630ee33dde71724d930\n" +
+                "658d65041c89ce03462e16a358f330e113e80662\n" +
                 "author\n" +
                 c2.setDate() + "\n" +
                 "summary", FileUtils.readFile(new File("objects", c2.getCurrentCommitSHA())));
 
         // test c3
-        assertEquals("720bb19e78f5a0b182628afd13a6ec24dc9d7199\n" +
-                "7f90c162a42eb01e49c03b25dade6eda932d1794\n" +
-                "f4f04497d708c75a91797a7f2ae5c15c99f556ff\n" +
+        assertEquals("e96af81350ca1b173271f526d428f7d7c0b8cb65\n" +
+                "4d63955f1298eefa936cee1deb02a9c8ba2eabb4\n" +
+                "1add18d909c9928c93193ec6ad36341c8d6d31a4\n" +
                 "author\n" +
                 c3.setDate() + "\n" +
                 "summary", FileUtils.readFile(new File("objects", c3.getCurrentCommitSHA())));
 
         // test c4
-        assertEquals("f4f04497d708c75a91797a7f2ae5c15c99f556ff\n" +
-                "720bb19e78f5a0b182628afd13a6ec24dc9d7199\n" +
+        assertEquals("f5444c2d977b530754dc3ac2074bcea438f372d2\n" +
+                "658d65041c89ce03462e16a358f330e113e80662\n" +
                 "\n" +
                 "author\n" +
                 c4.setDate() + "\n" +

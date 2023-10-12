@@ -27,7 +27,7 @@ public class Commit {
 
     // point to file - not in objects folder
     File commitFile;
-    Blob commitBlob;
+    File commitBlobFile;
     String commitFileContents;
 
     // point to Tree file
@@ -157,12 +157,14 @@ public class Commit {
         currentCommitSHA = updateCurrentCommitSHA();
 
         // creates Blob from commit file
-        commitBlob = new Blob(commitFile);
+        Blob commitBlob = new Blob(commitFile);
+        // point to current Blob file
+        commitBlobFile = new File("objects", currentCommitSHA);
 
         // update previous Commit (if possible)
         if (prevCommitSHA != null) {
             // locates previous commit
-            System.out.println("debug " + prevCommitSHA);
+            System.out.println("debug " + prevCommitSHA + " + " + currentCommitSHA);
             File prevCommit = new File("objects", prevCommitSHA);
 
             StringBuilder sb = new StringBuilder("");

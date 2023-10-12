@@ -54,7 +54,7 @@ public class TreeTest {
     @AfterEach
     @DisplayName("Deletes all files & folders that may have been created")
     public void tearDown() throws Exception {
-        FileUtils.deleteDirectory("objects");
+        // FileUtils.deleteDirectory("objects");
         FileUtils.deleteFile("Tree");
         FileUtils.deleteFile("TreeTestFile1");
         FileUtils.deleteFile("TreeTestFile2");
@@ -104,9 +104,10 @@ public class TreeTest {
         assertTrue(FileUtils.readFile(new File("Tree"))
                 .contains("blob : 9466c89b883caf71d2e11922122c40d903d941c1 : TreeTestFile3"));
 
-        // test final format
+        // test format
         String expectedTree = "blob : 2b9f612f7f2d2a578f6eef93d06c3b58496f8c3d : TreeTestFile1\nblob : 9466c89b883caf71d2e11922122c40d903d941c1 : TreeTestFile3";
         assertEquals(FileUtils.readFile(new File("Tree")), expectedTree);
+
     }
 
     @Test
@@ -115,12 +116,14 @@ public class TreeTest {
         // add some files
         tree.add("TreeTestFile1");
         tree.add("TreeTestFile2");
+        tree.add("TreeTestFile3");
 
         // remove
         tree.remove("TreeTestFile2");
 
         // hash
-        String expectedHash = FileUtils.hash("blob : 2b9f612f7f2d2a578f6eef93d06c3b58496f8c3d : TreeTestFile1");
+        String expectedHash = FileUtils.hash(
+                "blob : 2b9f612f7f2d2a578f6eef93d06c3b58496f8c3d : TreeTestFile1\nblob : 9466c89b883caf71d2e11922122c40d903d941c1 : TreeTestFile3");
         String actualHash = tree.getTreeHash();
 
         // assert line was indeed removed
@@ -128,6 +131,16 @@ public class TreeTest {
 
         // remove
         tree.remove("TreeTestFile1");
+
+        // hash
+        expectedHash = FileUtils.hash("blob : 9466c89b883caf71d2e11922122c40d903d941c1 : TreeTestFile3");
+        actualHash = tree.getTreeHash();
+
+        // assert line was indeed removed
+        assertEquals(expectedHash, actualHash);
+
+        // remove via SHA1
+        tree.remove("9466c89b883caf71d2e11922122c40d903d941c1");
 
         // hash
         expectedHash = FileUtils.hash("");
@@ -147,7 +160,7 @@ public class TreeTest {
 
         String expectedBlobHash = FileUtils.hash(
                 "blob : 2b9f612f7f2d2a578f6eef93d06c3b58496f8c3d : TreeTestFile1\nblob : 9466c89b883caf71d2e11922122c40d903d941c1 : TreeTestFile3");
-        tree.generateBlob();
+        tree.save();
 
         File blobFile = new File("objects/" + expectedBlobHash);
         // assert that the Blob file exists
@@ -157,7 +170,7 @@ public class TreeTest {
         tree.remove("TreeTestFile3");
 
         // make another Blob for new Tree
-        tree.generateBlob();
+        tree.save();
 
         // make sure original still exists
         assertTrue(blobFile.exists());
@@ -170,9 +183,10 @@ public class TreeTest {
     }
 
     @Test
+    @DisplayName("Tests generating adding Directory per the TestCase1 downloaded from the hub")
     public void testAddDirectoryTestCase1() throws Exception {
 
-        Tree tree = new Tree();
+        tree = new Tree();
 
         // create files according to the directory test from hub
         FileUtils.createDirectory("test1");
@@ -203,21 +217,27 @@ public class TreeTest {
                 + FileUtils.hash("LOL please dont read this.  Good job being thorough tho!")
                 + " : examplefile3";
 
-        String expectedTree = "tree : " + FileUtils.hash(expectedText) + " : test1";
-        String expectedHash = FileUtils.hash(expectedTree);
+        // String expectedTree = "tree : " + FileUtils.hash(expectedText) + " : test1";
+        String expectedHash = FileUtils.hash(expectedText);
 
         System.out.println(tree.addDirectory("test1"));
-        System.out.println(expectedTree);
+        System.out.println(FileUtils.readFile(new File("Tree")));
+        System.out.println(expectedText);
         // assertEquals(tree.getPreHashDirectory(), expectedTree);
         // throw new Exception("" + test1.exists());
 
         assertEquals(expectedHash, tree.directoryHash);
 
+        // make sure Blob exists
+        File dirBlob = new File("objects", expectedHash);
+        assertTrue(dirBlob.exists());
+
     }
 
     @Test
+    @DisplayName("Tests generating adding Directory per the advancedTest downloaded from the hub - slighty modified")
     public void testAddDirectoryAdvancedTest() throws Exception {
-        Tree tree = new Tree();
+        tree = new Tree();
 
         File test1 = new File("advancedTest");
 
@@ -238,7 +258,9 @@ public class TreeTest {
 
         File advnacedtest1 = new File(test5, "advnacedtest1.txt");
         advnacedtest1.createNewFile();
-        // ("test5", "advnacedtest1");
+        // new addition -->
+        File advnacedtest2 = new File(test5, "advnacedtest2.txt");
+        advnacedtest2.createNewFile();
 
         File examplefile1 = new File("advancedTest", "examplefile1.txt");
         examplefile1.createNewFile();
@@ -251,25 +273,123 @@ public class TreeTest {
         FileWriter fw2 = new FileWriter(examplefile2);
         FileWriter fw3 = new FileWriter(examplefile3);
         FileWriter fw4 = new FileWriter(advnacedtest1);
+        FileWriter fw5 = new FileWriter(advnacedtest2);
 
         fw1.write("the sha of this is ... ?");
         fw2.write("zomg wut are u doing. LAWL");
         fw3.write("LOL please dont read this.  Good job being thorough tho!");
         fw4.write("wooow good job!");
+        fw5.write("balls");
 
         fw1.close();
         fw2.close();
         fw3.close();
         fw4.close();
+        fw5.close();
 
         // run test
 
-        String expectedHash = "eb6d9a8158b62c74f4be79e2b89d964239964861";
+        String expectedContents = "blob : 6cecd98f685b1c9bfce96f2bbf3f8f381bcc717e : examplefile1.txt\nblob : 7fb1c700700603eef612e0ffedff5e1fa5af50b6 : examplefile2.txt\nblob : 7588059d9f514dcf29aec96e4b3aff9a467f7172 : examplefile3.txt\ntree : da39a3ee5e6b4b0d3255bfef95601890afd80709 : test3\ntree : 657a041270147fda6ad6fdc4d16ce309a1590575 : test5";
+
+        String expectedHash = FileUtils.hash(expectedContents);
 
         tree.addDirectory("advancedTest");
         // assertEquals(tree.testString, expectedText);
 
+        System.out.println("/________\n" + FileUtils.readFile(new File("Tree")) + "\n_________/");
+
         assertEquals(expectedHash, tree.directoryHash);
+
+        // make sure Blobs exists
+        File dirBlob = new File("objects", expectedHash);
+        assertTrue(dirBlob.exists());
+
+        File test3Blob = new File("objects", "da39a3ee5e6b4b0d3255bfef95601890afd80709");
+
+        File test5Blob = new File("objects", "657a041270147fda6ad6fdc4d16ce309a1590575");
+        File advnacedtest1Blob = new File("objects", "62238a7c52c3f5a2dc47c252081ca7abb360f98b");
+        File advnacedtest2Blob = new File("objects", "99e4f5b9e5272cc0b5ff5f29909fd508cd49e5f2 ");
+
+        File examplefile1Blob = new File("objects", "6cecd98f685b1c9bfce96f2bbf3f8f381bcc717e");
+        File examplefile2Blob = new File("objects", "7fb1c700700603eef612e0ffedff5e1fa5af50b6");
+        File examplefile3Blob = new File("objects", "7588059d9f514dcf29aec96e4b3aff9a467f7172");
+
+        assertTrue(test3Blob.exists());
+        assertTrue(test5Blob.exists());
+        assertTrue(advnacedtest1Blob.exists());
+        assertTrue(advnacedtest2Blob.exists());
+        assertTrue(examplefile1Blob.exists());
+        assertTrue(examplefile2Blob.exists());
+        assertTrue(examplefile3Blob.exists());
+    }
+
+    @Test
+    @DisplayName("Tests generating adding Directory and then another blob")
+    public void testAddDirectoryAndBlob() throws Exception {
+        tree = new Tree();
+
+        // copy paste from previous test
+        FileUtils.createDirectory("test1");
+
+        File test1 = new File("test1");
+
+        File examplefile1 = new File("test1", "examplefile1");
+        File examplefile2 = new File("test1", "examplefile2");
+        File examplefile3 = new File("test1", "examplefile3");
+
+        FileWriter fw1 = new FileWriter(examplefile1);
+        FileWriter fw2 = new FileWriter(examplefile2);
+        FileWriter fw3 = new FileWriter(examplefile3);
+
+        fw1.write("the sha of this is ... ?");
+        fw2.write("zomg wut are u doing. LAWL?");
+        fw3.write("LOL please dont read this.  Good job being thorough tho!");
+
+        fw1.close();
+        fw2.close();
+        fw3.close();
+
+        // run test
+
+        String expectedText = "blob : " + FileUtils.hash("the sha of this is ... ?") + " : examplefile1\n"
+                + "blob : "
+                + FileUtils.hash("zomg wut are u doing. LAWL?") + " : examplefile2\n" + "blob : "
+                + FileUtils.hash("LOL please dont read this.  Good job being thorough tho!")
+                + " : examplefile3";
+
+        // String expectedTree = "tree : " + FileUtils.hash(expectedText) + " : test1";
+        System.out.println(expectedText);
+        String expectedHash = FileUtils.hash(expectedText);
+
+        System.out.println(tree.addDirectory("test1"));
+        System.out.println("/-----" + FileUtils.readFile(new File("Tree")) + "---------------/");
+
+        // assertEquals(tree.getPreHashDirectory(), expectedTree);
+        // throw new Exception("" + test1.exists());
+
+        assertEquals(expectedHash, tree.directoryHash);
+
+        // make sure Blob exists
+        File dirBlob = new File("objects", expectedHash);
+        assertTrue(dirBlob.exists());
+
+        // add another blob afterwards
+        String TreeTestFile1Name = "TreeTestFile1";
+        File TreeTestFile1 = new File(TreeTestFile1Name);
+        tree.add(TreeTestFile1.getName());
+
+        System.out.println("/-----" + FileUtils.readFile(new File("Tree")) + "---------------/");
+
+        String expectedTreeContents = "tree : " + expectedHash
+                + " : test1\nblob : 2b9f612f7f2d2a578f6eef93d06c3b58496f8c3d : TreeTestFile1";
+
+        // assert if contents of tree file is as expected
+        assertEquals(FileUtils.readFile(new File("Tree")), expectedTreeContents);
+
+        tree.save();
+        // assert if generated blob matches expected
+        assertEquals(FileUtils.readFile(new File("objects", tree.getTreeHash())), expectedTreeContents);
+
     }
 
 }
