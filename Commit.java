@@ -18,27 +18,50 @@ public class Commit {
     private String summary = "";
     private String date;
     private String prevCommitSHA;
-    private String currentCommitSHA = "";
+    // hash of Tree file
+    private String treeHash;
     private String nextCommitSHA = "";
 
-    private int indexOfCurrent;
-    ArrayList<String> hashes = new ArrayList<>();
+    // name of Commit Blob
+    private String currentCommitSHA = "";
 
-    // private int totalCommits = 0;
-    // private int commitIndex = 0;
-
-    private Tree commitTree;
-    private String treeHash;
-
-    // point to file for this commit in objects folder
+    // point to file - not in objects folder
     File commitFile;
+    Blob commitBlob;
+    String commitFileContents;
+
+    // point to Tree file
+    Tree tree = new Tree();
+    // point to head file
+    File head;
 
     // no prev commit
     public Commit(String author, String summary) throws Exception {
 
         this.author = author;
         this.summary = summary;
-        treeHash = createTree();
+        treeHash = hashTree();
+
+        // HEAD file
+        head = new File("head");
+        head.createNewFile();
+
+        // check if there is a prev Commit or not
+        BufferedReader buffReader = new BufferedReader(new FileReader(head));
+        if (buffReader.ready()) {
+            prevCommitSHA = buffReader.readLine();
+        }
+        buffReader.close();
+
+        // create Commit file - not in objects folder
+        commitFile = new File("commit");
+        commitFile.createNewFile();
+
+        // write latest info into it
+        String commitContent = updateCommitFileContent();
+        FileWriter fileWrite = new FileWriter(commitFile);
+        fileWrite.write(commitContent);
+        fileWrite.close();
 
     }
 
@@ -48,118 +71,104 @@ public class Commit {
         this(author, summary);
         this.prevCommitSHA = prevSHA;
         System.out.println("constuct prevcom " + prevCommitSHA);
-        treeHash = createTree();
+        treeHash = hashTree();
 
-        // HEAD file thing
-        File head = new File("head");
+        // update head file
+        head = new File("head");
         head.createNewFile();
+
+        FileWriter fileWrite = new FileWriter(head);
+        fileWrite.write(prevSHA);
+        fileWrite.close();
+
+        // create Commit file - not in objects folder
+        commitFile = new File("commit");
+        commitFile.createNewFile();
+
+        // write latest info into it
+        String commitContent = updateCommitFileContent();
+        fileWrite = new FileWriter(commitFile);
+        fileWrite.write(commitContent);
+        fileWrite.close();
     }
 
     // Setters & Getters
     public void setAuthor(String input) {
         author = input;
     }
+
     public void setSummary(String input) {
         summary = input;
     }
-    // Gets date ("weekday month day year")
-    public static String getDate() {
-        Date date = new Date();
-        return date.toString().substring(0, 11) + "2023";
+
+    // updates date ("weekday month day year")
+    public String setDate() {
+        date = new Date().toString().substring(0, 11) + "2023";
+        return date;
 
     }
+
+    // returns saved date
+    public String getDate() {
+        return date;
+    }
+
     public String getCurrentCommitSHA() {
         return currentCommitSHA;
     }
 
+    // return hash of Tree file
+    private String hashTree() throws Exception {
 
-    // create Tree & return its hash
-    // for "index"
-    private String createTree() throws Exception {
-        // create new Tree
-        commitTree = new Tree();
-        // read index
-        BufferedReader bf = new BufferedReader(new FileReader("Tree"));
-        while (bf.ready()) {
-            // reads whats in index into the Tree file
-            commitTree.addLine(bf.readLine());
-        }
-        bf.close();
+        // read index & adjust Tree accordingly
+        /**
+         * // read index & adjust Tree accordingly
+         * BufferedReader bf = new BufferedReader(new FileReader("Tree"));
+         * while (bf.ready()) {
+         * // reads whats in index into the Tree file
+         * tree.addLine(bf.readLine());
+         * }
+         * bf.close();
+         */
 
-        // if has parent commit
-        if (prevCommitSHA != null && prevCommitSHA.length() > 0) {
-            String prevCommitContent = FileUtils.readFile(new File("objects/" + prevCommitSHA));
-            String prevCommitTree = prevCommitContent.substring(0, 40);
-
-            commitTree.addLine("tree : " + prevCommitTree);
-        }
+        /**
+         * // if has parent commit, update Tree file to include
+         * if (prevCommitSHA != null) {
+         * String prevCommitContent = FileUtils.readFile(new File("objects/" +
+         * prevCommitSHA));
+         * String prevCommitTree = prevCommitContent.substring(0, 40);
+         * 
+         * // go through the old Tree file and add everything into current one
+         * tree.addLine("tree : " + prevCommitTree);
+         * }
+         */
 
         // return
-        commitTree.generateBlob();
-        treeHash = commitTree.getTreeHash();
+        // note: does not blobify yet
+        treeHash = tree.getTreeHash();
         System.out.println(treeHash);
         return treeHash;
     }
 
-    public String hashesToString() {
-        return hashes.toString();
-    }
-
     // actually commit to obj file
     public void commit() throws Exception {
+
         // gets current sha
-        currentCommitSHA = createTree();
-        // gets date - this way date is consistent across the commit
-        date = getDate();
+        currentCommitSHA = updateCurrentCommitSHA();
 
-        // ----------------
-
-        // hashes.add(currentCommitSHA);
-
-        // indexOfCurrent = hashes.indexOf(currentCommitSHA);
-
-        // if (indexOfCurrent == hashes.size() - 1) {
-        //     nextCommitSHA = null;
-        // } else {
-        //     nextCommitSHA = hashes.get(indexOfCurrent + 1);
-        // }
-
-        // if (indexOfCurrent == 0) {
-        // prevCommitSHA = null;
-        // } else {
-        // prevCommitSHA = hashes.get(indexOfCurrent - 1);
-        // }
-
-        // -------------
-
-        // creates file to put into objects folder;
-        commitFile = new File("objects", currentCommitSHA);
-        System.out.println("prevcomsha - " + prevCommitSHA);
-
-        // make new file
-        commitFile.createNewFile();
-
-        // write contents
-        FileWriter fw = new FileWriter(commitFile);
-        fw.write(createCommitFileContent());
-        fw.close();
-
-        // clear out Tree file post commit
-        File tempTreeFile = new File("Tree");
-        tempTreeFile.delete();
-        tempTreeFile.createNewFile();
-
-        // re-add file to Tree file
-        tempTreeFile.add(author);
+        // creates Blob from commit file
+        commitBlob = new Blob(commitFile);
 
         // update previous Commit (if possible)
-        if (prevCommitSHA != null && prevCommitSHA.length() > 0) {
+        if (prevCommitSHA != null) {
             // locates previous commit
             System.out.println("debug " + prevCommitSHA);
             File prevCommit = new File("objects", prevCommitSHA);
+
             StringBuilder sb = new StringBuilder("");
             BufferedReader br = new BufferedReader(new FileReader(prevCommit));
             int line = 1;
+
             // updates line 3 to have nextCommit
             while (br.ready()) {
                 if (line == 1)
@@ -175,42 +184,49 @@ public class Commit {
             }
             br.close();
 
-            // replaces old commit with new contents
-            fw = new FileWriter(prevCommit);
+            // rewrites prev commit
+            FileWriter fw = new FileWriter(prevCommit);
             fw.write(sb.toString());
             fw.close();
         }
+
         // update Head file
         File head = new File("head");
-        fw = new FileWriter(head);
+        FileWriter fw = new FileWriter(head);
         fw.write(currentCommitSHA);
         fw.close();
 
     }
 
-    private void createCurrentCommitSHA() throws Exception {
-        if (treeHash == null) {
-            throw new Exception("Hash of tree is null");
-        }
-        // hashes --> current commit sha
-        // skips over line 3
-        currentCommitSHA = FileUtils.hash(treeHash + "\n" + ((prevCommitSHA == null) ? ""
-                : prevCommitSHA) + "\n" + author + "\n" + date + "\n"
-                + summary);
-        // return currentCommitSHA;
+    // hashes commit file
+    private String updateCurrentCommitSHA() throws Exception {
+        updateCommitFileContent();
+
+        currentCommitSHA = FileUtils.hash(commitFileContents);
+
+        return currentCommitSHA;
     }
 
-    private String createCommitFileContent() throws Exception {
-        if (treeHash == null) {
-            throw new Exception("Hash of tree is null");
-        }
-        // return the text within the current Commit file
-        return (treeHash + "\n" + ((prevCommitSHA == null) ? ""
-                : prevCommitSHA) + "\n"
-                + ((nextCommitSHA == null) ? ""
-                        : nextCommitSHA)
-                + "\n" + author + "\n" + date + "\n"
-                + summary);
+    // updates commit file with proper data & returns the new contents
+    private String updateCommitFileContent() throws Exception {
+
+        // gets date
+        date = setDate();
+
+        // updates treeHash
+        treeHash = tree.getTreeHash();
+
+        commitFileContents = (treeHash + "\n" +
+                ((prevCommitSHA == null) ? "" : prevCommitSHA) + "\n"
+                + ((nextCommitSHA == null) ? "" : nextCommitSHA) + "\n"
+                + author + "\n" + date + "\n" + summary);
+        // updates commit file
+        FileWriter fileWrite = new FileWriter(commitFile);
+        fileWrite.write(commitFileContents);
+        fileWrite.close();
+
+        // return the text for the current Commit file
+        return commitFileContents;
     }
 
     // gets Commit's Tree based on Commit's SHA1

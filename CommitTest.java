@@ -8,15 +8,18 @@ import java.io.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class CommitTest {
 
+    Tree tree;
+
     @BeforeEach
+    @DisplayName("Re-initializes tree & makes all files for testing")
     void setUp() throws Exception {
 
-        Index index = new Index();
-        index.init();
+        tree = new Tree();
 
         File CommitTestFile1 = new File("CommitTestFile1");
         File CommitTestFile2 = new File("CommitTestFile2");
@@ -82,6 +85,7 @@ public class CommitTest {
     }
 
     @AfterEach
+    @DisplayName("deletes all files used in testing")
     void tearDown() throws Exception {
         File CommitTestFile1 = new File("CommitTestFile1");
         File CommitTestFile2 = new File("CommitTestFile2");
@@ -106,61 +110,31 @@ public class CommitTest {
         FileUtils.deleteDirectory(CommitTestFolder1.getName());
         FileUtils.deleteDirectory(CommitTestFolder2.getName());
         FileUtils.deleteDirectory(CommitTestFolder3.getName());
-    }
 
-    @Test
-    void testCommitFile() throws Exception {
-
-        Commit c = new Commit("Billy", "W Billy Commit!");
-        c.commit();
-
-        // assertEquals(c.hashes.size() == 1, true);
+        FileUtils.deleteDirectory("objects");
+        FileUtils.deleteFile("head");
+        FileUtils.deleteFile("Tree");
+        FileUtils.deleteFile("commit");
 
     }
-
-    // @Test
-    // void testGenerateSHA() throws NoSuchAlgorithmException {
-
-    // String normal = "bobby";
-    // String hash = Commit.generateSHA(normal);
-
-    // assertEquals(hash, "4501c3b0336cf2d19ed69a8d0ec436ee3f88b31b");
-
-    // }
 
     // not really sure how else to properly test
     @Test
+    @DisplayName("Test if the date is properly updated and set")
     void testGetDate() throws Exception {
 
-        String date = Commit.getDate();
+        Commit c1 = new Commit("author", "summary");
+        c1.commit();
+
+        String date = c1.getDate();
 
         assertNotNull(date);
 
     }
 
+    // i got this from a pull request; not sure what the intention of this test was
     @Test
-    void testHashesToString() throws Exception {
-
-        Commit c = new Commit("Billy", "W Billy Commit!");
-        c.commit();
-        // c.writeFile();
-
-        PrintWriter pw = new PrintWriter("Tree");
-
-        pw.write("UWU SUSSY BAKA");
-        pw.close();
-        c.commit();
-        // c.writeFile();
-
-        String list = c.hashesToString();
-
-        assertEquals(c.hashesToString() != null, true);
-        assertEquals(list.indexOf(",") == -1, false);
-
-    }
-
-    // not sure what intention of this test was
-    @Test
+    @DisplayName("Test if the tree file exists")
     void testMakeTree() throws Exception {
 
         Tree tree = new Tree();
@@ -173,91 +147,116 @@ public class CommitTest {
     }
 
     @Test
+    @DisplayName("Test if Commit can save one commit with multiple files")
     void testCreate1Commit() throws Exception {
         // add 2 files
-        Index index = new Index();
-        index.init();
 
-        index.add("CommitTestFile1");
-        index.add("CommitTestFile2");
+        tree.add("CommitTestFile1");
+        tree.add("CommitTestFile2");
 
         Commit c1 = new Commit("author", "summary");
         c1.commit();
 
+        // checks if the commit file contains the right contents
         assertEquals(FileUtils.readFile(c1.commitFile), "f5fbdf45158451c507e3601504d0c4e216789f79\n" +
                 "\n" +
                 "\n" +
                 "author\n" +
-                Commit.getDate() + "\n" +
+                c1.getDate() + "\n" +
+                "summary");
+
+        // check if the commit blob contains the right contents
+        assertEquals(c1.commitBlob.getFileContent(), "f5fbdf45158451c507e3601504d0c4e216789f79\n" +
+                "\n" +
+                "\n" +
+                "author\n" +
+                c1.getDate() + "\n" +
                 "summary");
     }
 
     @Test
+    @DisplayName("Test if commit can handle 2 commits with folders")
     void testCreate2Commits() throws Exception {
         // add 2 files
-        Index index = new Index();
-        index.init();
 
-        index.add("CommitTestFile1");
-        index.add("CommitTestFile2");
+        tree.add("CommitTestFile1");
+        tree.add("CommitTestFile2");
 
         Commit c1 = new Commit("author", "summary");
         c1.commit();
         System.out.println("c1" + c1.getCurrentCommitSHA());
 
-        index.add("CommitTestFile3");
-        index.add("CommitTestFolder1");
+        tree.add("CommitTestFile3");
+        tree.add("CommitTestFolder1");
 
         Commit c2 = new Commit("author", "summary", c1.getCurrentCommitSHA());
         c2.commit();
 
         // test c1
-        assertEquals("f5fbdf45158451c507e3601504d0c4e216789f79\n" +
+        // checks if the commit file contains the right contents
+        assertEquals(FileUtils.readFile(c1.commitFile), "f5fbdf45158451c507e3601504d0c4e216789f79\n" +
                 "\n" +
-                "ef556bdf4bdbd9f6a91e8e95fa4e347330e63b14\n" +
+                "\n" +
                 "author\n" +
-                Commit.getDate() + "\n" +
-                "summary", FileUtils.readFile(new File("objects", c1.getCurrentCommitSHA())));
+                c1.getDate() + "\n" +
+                "summary");
+
+        // check if the commit blob contains the right contents
+        assertEquals(c1.commitBlob.getFileContent(), "f5fbdf45158451c507e3601504d0c4e216789f79\n" +
+                "\n" +
+                "\n" +
+                "author\n" +
+                c1.getDate() + "\n" +
+                "summary");
 
         // test c2
-        assertEquals("ef556bdf4bdbd9f6a91e8e95fa4e347330e63b14\n" +
+
+        // checks if the commit file contains the right contents
+        assertEquals(FileUtils.readFile(c2.commitFile), "ef556bdf4bdbd9f6a91e8e95fa4e347330e63b14\n" +
                 "f5fbdf45158451c507e3601504d0c4e216789f79\n" +
                 "\n" +
                 "author\n" +
-                Commit.getDate() + "\n" +
-                "summary", FileUtils.readFile(new File("objects", c2.getCurrentCommitSHA())));
+                c2.getDate() + "\n" +
+                "summary");
+
+        // check if the commit blob contains the right contents
+        assertEquals(c2.commitBlob.getFileContent(), "ef556bdf4bdbd9f6a91e8e95fa4e347330e63b14\n" +
+                "f5fbdf45158451c507e3601504d0c4e216789f79\n" +
+                "\n" +
+                "author\n" +
+                c2.getDate() + "\n" +
+                "summary");
 
     }
 
     @Test
+    @DisplayName("Test if commit can handle 4 commits with folders")
     void testCreate4Commits() throws Exception {
         // add 4 files
-        Index index = new Index();
-        index.init();
 
-        index.add("CommitTestFile1");
-        index.add("CommitTestFile2");
+        tree.add("CommitTestFile1");
+        tree.add("CommitTestFile2");
 
         Commit c1 = new Commit("author", "summary");
         c1.commit();
         System.out.println("c1" + c1.getCurrentCommitSHA());
 
-        index.add("CommitTestFile3");
-        index.add("CommitTestFile4");
-        index.add("CommitTestFolder1");
+        tree.add("CommitTestFile3");
+        tree.add("CommitTestFile4");
+        tree.add("CommitTestFolder1");
 
         Commit c2 = new Commit("author", "summary", c1.getCurrentCommitSHA());
         c2.commit();
 
-        index.add("CommitTestFile5");
-        index.add("CommitTestFile6");
-        index.add("CommitTestFolder2");
+        tree.add("CommitTestFile5");
+        tree.add("CommitTestFile6");
+        tree.add("CommitTestFolder2");
 
         Commit c3 = new Commit("author", "summary", c2.getCurrentCommitSHA());
         c3.commit();
 
-        index.add("CommitTestFile7");
-        index.add("CommitTestFile8");
+        tree.add("CommitTestFile7");
+        tree.add("CommitTestFile8");
 
         Commit c4 = new Commit("author", "summary", c3.getCurrentCommitSHA());
         c4.commit();
@@ -267,7 +266,7 @@ public class CommitTest {
                 "\n" +
                 "7f90c162a42eb01e49c03b25dade6eda932d1794\n" +
                 "author\n" +
-                Commit.getDate() + "\n" +
+                c1.setDate() + "\n" +
                 "summary", FileUtils.readFile(new File("objects", c1.getCurrentCommitSHA())));
 
         // test c2
@@ -275,7 +274,7 @@ public class CommitTest {
                 "f5fbdf45158451c507e3601504d0c4e216789f79\n" +
                 "720bb19e78f5a0b182628afd13a6ec24dc9d7199\n" +
                 "author\n" +
-                Commit.getDate() + "\n" +
+                c2.setDate() + "\n" +
                 "summary", FileUtils.readFile(new File("objects", c2.getCurrentCommitSHA())));
 
         // test c3
@@ -283,7 +282,7 @@ public class CommitTest {
                 "7f90c162a42eb01e49c03b25dade6eda932d1794\n" +
                 "f4f04497d708c75a91797a7f2ae5c15c99f556ff\n" +
                 "author\n" +
-                Commit.getDate() + "\n" +
+                c3.setDate() + "\n" +
                 "summary", FileUtils.readFile(new File("objects", c3.getCurrentCommitSHA())));
 
         // test c4
@@ -291,7 +290,7 @@ public class CommitTest {
                 "720bb19e78f5a0b182628afd13a6ec24dc9d7199\n" +
                 "\n" +
                 "author\n" +
-                Commit.getDate() + "\n" +
+                c4.setDate() + "\n" +
                 "summary", FileUtils.readFile(new File("objects", c4.getCurrentCommitSHA())));
 
     }
