@@ -54,7 +54,7 @@ public class TreeTest {
     @AfterEach
     @DisplayName("Deletes all files & folders that may have been created")
     public void tearDown() throws Exception {
-        // FileUtils.deleteDirectory("objects");
+        FileUtils.deleteDirectory("objects");
         FileUtils.deleteFile("Tree");
         FileUtils.deleteFile("TreeTestFile1");
         FileUtils.deleteFile("TreeTestFile2");

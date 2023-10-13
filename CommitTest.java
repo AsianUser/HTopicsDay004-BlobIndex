@@ -114,10 +114,10 @@ public class CommitTest {
         FileUtils.deleteDirectory(CommitTestFolder2.getName());
         FileUtils.deleteDirectory(CommitTestFolder3.getName());
 
-        // FileUtils.deleteDirectory("objects");
-        // FileUtils.deleteFile("head");
-        // FileUtils.deleteFile("Tree");
-        // FileUtils.deleteFile("commit");
+        FileUtils.deleteDirectory("objects");
+        FileUtils.deleteFile("head");
+        FileUtils.deleteFile("Tree");
+        FileUtils.deleteFile("commit");
 
     }
 
