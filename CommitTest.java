@@ -1,4 +1,5 @@
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.security.NoSuchAlgorithmException;
@@ -175,6 +176,10 @@ public class CommitTest {
                 "author\n" +
                 c1.getDate() + "\n" +
                 "summary");
+
+        // check if trees exist
+        File treeC1 = new File("objects", "f5fbdf45158451c507e3601504d0c4e216789f79");
+        assertTrue(treeC1.exists());
     }
 
     @Test
@@ -227,6 +232,12 @@ public class CommitTest {
                 "author\n" +
                 c2.getDate() + "\n" +
                 "summary");
+
+        // check if trees exist
+        File treeC1 = new File("objects", "f5fbdf45158451c507e3601504d0c4e216789f79");
+        assertTrue(treeC1.exists());
+        File treeC2 = new File("objects", "8df0f059472e1bf7cf79317d3053623ffaa52077");
+        assertTrue(treeC2.exists());
 
     }
 
@@ -294,87 +305,76 @@ public class CommitTest {
                 c4.setDate() + "\n" +
                 "summary", FileUtils.readFile(new File("objects", c4.getCurrentCommitSHA())));
 
+        // check if trees exist
+        File treeC1 = new File("objects", "f5fbdf45158451c507e3601504d0c4e216789f79");
+        assertTrue(treeC1.exists());
+        File treeC2 = new File("objects", "46c5a7f675d56d8c4b56cd5aa60149ebf15b3c21");
+        assertTrue(treeC2.exists());
+        File treeC3 = new File("objects", "e96af81350ca1b173271f526d428f7d7c0b8cb65");
+        assertTrue(treeC3.exists());
+        File treeC4 = new File("objects", "f5444c2d977b530754dc3ac2074bcea438f372d2");
+        assertTrue(treeC4.exists());
+
     }
 
-    // @Test
-    // void testSeeNext() throws Exception {
+    @Test
+    void testCheckout() throws Exception {
 
-    // System.out.println(Commit.getDate());
-    // Commit com = new Commit("Bo", "Cool!");
+        // copy-pasted from testCreate4Commits
+        tree.add("CommitTestFile1");
+        tree.add("CommitTestFile2");
 
-    // PrintWriter pw = new PrintWriter();
-    // pw.write("lol");
-    // pw.close();
-    // com.commit();
-    // // com.writeFile();
+        Commit c1 = new Commit("author", "summary");
+        c1.commit();
+        System.out.println("c1" + c1.getCurrentCommitSHA());
 
-    // System.out.println(com.hashesToString());
+        // edit file
+        FileWriter fileWriter = new FileWriter("CommitTestFile1");
+        fileWriter.write("many edits");
+        fileWriter.close();
 
-    // PrintWriter pw2 = new PrintWriter();
-    // pw2.write("lol2");
-    // pw2.close();
-    // com.commit();
-    // // com.writeFile();
-    // System.out.println(com.hashesToString());
+        // make sure we acc changed stuff
+        assertTrue(FileUtils.readFile(new File("CommitTestFile1")).equals("many edits"));
 
-    // PrintWriter pw3 = new PrintWriter();
-    // pw3.write("lol3");
-    // pw3.close();
-    // com.commit();
-    // com.writeFile();
-    // System.out.println(com.hashesToString());
+        System.out.println("calling checkout:__________________________");
+        FileUtils.checkout(c1.getCurrentCommitSHA());
 
-    // com.seePrev();
-    // com.writeFile();
+        System.out.println("end checkout:__________________________");
 
-    // com.seeNext();
-    // com.writeFile();
-    // String name = com.hashes.get(2);
+        // check the edited file has returned to normal
+        assertTrue(FileUtils.readFile(new File("CommitTestFile1")).equals("CommitTestFile1"));
 
-    // // recycle earlier code
+        // add a folder & some file for commit 2
+        tree.add("CommitTestFile3");
+        tree.add("CommitTestFolder1");
+        tree.add("CommitTestFolder2");
 
-    // assertEquals(new File(name).exists(),
-    // true);
+        Commit c2 = new Commit("author", "summary", c1.getCurrentCommitSHA());
+        c2.commit();
 
-    // }
+        // edit file inside folder
+        fileWriter = new FileWriter(new File("CommitTestFolder1", "CommitTestFile9"));
+        fileWriter.write("mega edit");
+        fileWriter.close();
+        fileWriter = new FileWriter(new File("CommitTestFolder2", "CommitTestFile10"));
+        fileWriter.write("ertyukmnbvcdg");
+        fileWriter.close();
 
-    // @Test
-    // void testSeePrev() throws Exception {
+        // make sure we acc changed stuff
+        assertTrue(FileUtils.readFile(new File("CommitTestFolder1", "CommitTestFile9")).equals("mega edit"));
 
-    // System.out.println(Commit.getDate());
-    // Commit com = new Commit("Bo", "Cool!");
+        System.out.println("calling checkout:__________________________");
 
-    // PrintWriter pw = new PrintWriter();
-    // pw.write("lol");
-    // pw.close();
-    // com.commitFile();
-    // com.writeFile();
+        FileUtils.checkout(c2.getCurrentCommitSHA());
 
-    // System.out.println(com.hashesToString());
+        // check the edited file has returned to normal
+        System.out.println(FileUtils.readFile(new File("CommitTestFolder1", "CommitTestFile9")));
+        File CommitTestFile9 = new File("CommitTestFolder1", "CommitTestFile9");
+        System.out.println("file9 path:" + CommitTestFile9.getPath());
 
-    // PrintWriter pw2 = new PrintWriter();
-    // pw2.write("lol2");
-    // pw2.close();
-    // com.commitFile();
-    // com.writeFile();
-    // System.out.println(com.hashesToString());
+        assertTrue(FileUtils.readFile(new File("CommitTestFolder1", "CommitTestFile9")).equals("CommitTestFile9"));
+        assertTrue(FileUtils.readFile(new File("CommitTestFolder2", "CommitTestFile10")).equals("CommitTestFile10"));
 
-    // PrintWriter pw3 = new PrintWriter();
-    // pw3.write("lol3");
-    // pw3.close();
-    // com.commitFile();
-    // com.writeFile();
-    // System.out.println(com.hashesToString());
-
-    // com.seePrev();
-    // com.writeFile();
-    // String name = com.hashes.get(1);
-
-    // // recycle earlier code
-
-    // assertEquals(new File(name).exists(),
-    // true);
-
-    // }
+    }
 
 }

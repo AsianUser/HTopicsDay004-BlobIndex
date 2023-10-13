@@ -156,6 +156,9 @@ public class Commit {
         // gets current sha
         currentCommitSHA = updateCurrentCommitSHA();
 
+        // blobs Tree file
+        tree.save();
+
         // creates Blob from commit file
         Blob commitBlob = new Blob(commitFile);
         // point to current Blob file

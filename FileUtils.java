@@ -133,4 +133,91 @@ public class FileUtils {
         deleteDirectory(dirName);
         dir.mkdir();
     }
+
+    // intakes a hash & recreates all files according to the ver in that hash
+    static void checkout(String targetCommitHash) throws Exception {
+        // locate the commit
+        File targetCommitFile = new File("objects", targetCommitHash);
+        System.out.println("targetCommitFile: " + targetCommitFile.getPath());
+        System.out.println(FileUtils.readFile(targetCommitFile));
+
+        if (!targetCommitFile.exists()) {
+            throw new Exception("invalid targetCommitHash");
+        }
+
+        BufferedReader buffReader = new BufferedReader(new FileReader(targetCommitFile));
+
+        String targetTreeHash = buffReader.readLine();
+
+        buffReader.close();
+
+        traverse("", targetTreeHash);
+
+    }
+
+    // recursively move through a tree
+    static void traverse(String parentPath, String tree) throws Exception {
+        // read the hash tree inside of objects folder
+        BufferedReader buffReader = new BufferedReader(new FileReader(new File("objects", tree)));
+
+        while (buffReader.ready()) {
+            // identify type, hash, and fileName
+            String readLine = buffReader.readLine();
+
+            String type = readLine.substring(0, 4);
+            String hash = readLine.substring(7, 47);
+            String fileName = readLine.substring(50);
+
+            // if blob
+            // find file of fileName
+            // replace contents with contents of hash
+            if (type.equals("blob")) {
+
+                // file outside of objects
+                File targetFile;
+                // System.out.println(fileName);
+
+                if (!parentPath.equals("")) {
+                    File parentFile = new File(parentPath);
+                    parentFile.mkdir();
+
+                    targetFile = new File(parentPath, fileName);
+                    targetFile.createNewFile();
+                } else {
+                    // point to currently existing file
+                    targetFile = new File(fileName);
+                    targetFile.createNewFile();
+                }
+
+                // copy contents of hashed file to target file
+                FileWriter fileWriter = new FileWriter(targetFile);
+
+                String originalText = readFile(new File("objects", hash));
+
+                System.out.println("blobFile: " + targetFile.getPath());
+                System.out.println("targetFile contents " + readFile(targetFile));
+                System.out.println("orig: " + originalText);
+
+                fileWriter.write(originalText);
+                fileWriter.close();
+            }
+
+            // if dir
+            // traverse it
+            else if (type.equals("tree")) {
+
+                File dirFile = new File(parentPath, fileName);
+                dirFile.mkdir();
+
+                System.out.println("traverse recusion");
+
+                // the "/" at the front of the path throws everything off
+                traverse(dirFile.getPath().substring(1), hash);
+            }
+
+        }
+
+        buffReader.close();
+    }
+
 }
